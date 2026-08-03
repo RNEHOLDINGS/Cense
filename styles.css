@@ -1,0 +1,580 @@
+/* ---------------------------------------------------------------
+   Cense — an RNE Holdings product
+   Chart/bucket colors come from the validated categorical palette
+   (slots 1-6). Brand chrome deliberately adds no fifth hue, so a
+   brand color can never be mistaken for a data series.
+   --------------------------------------------------------------- */
+
+:root {
+  color-scheme: light;
+
+  --surface-1: #fcfcfb;   /* card + chart surface (what the palette validated against) */
+  --plane:     #f7f4ee;   /* warm page behind the cards */
+  --ink:       #0b0b0b;
+  --ink-2:     #52514e;
+  --ink-muted: #898781;
+  --grid:      #e1e0d9;
+  --axis:      #c3c2b7;
+  --border:    rgba(11, 11, 11, 0.10);
+  --wash:      rgba(11, 11, 11, 0.04);
+
+  --series-1: #2a78d6; /* blue   */
+  --series-2: #1baf7a; /* aqua   */
+  --series-3: #eda100; /* yellow */
+  --series-4: #008300; /* green  */
+  --series-5: #4a3aa7; /* violet */
+  --series-6: #e34948; /* red    */
+
+  --good:     #0ca30c;
+  --good-ink: #006300;
+  --warning:  #fab219;
+  --critical: #d03b3b;
+
+  --radius: 14px;
+  --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --plane:     #0d0d0d;
+    --ink:       #ffffff;
+    --ink-2:     #c3c2b7;
+    --ink-muted: #898781;
+    --grid:      #2c2c2a;
+    --axis:      #383835;
+    --border:    rgba(255, 255, 255, 0.10);
+    --wash:      rgba(255, 255, 255, 0.05);
+
+    --series-1: #3987e5;
+    --series-2: #199e70;
+    --series-3: #c98500;
+    --series-4: #008300;
+    --series-5: #9085e9;
+    --series-6: #e66767;
+
+    --good-ink: #0ca30c;
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --surface-1: #1a1a19;
+  --plane:     #0d0d0d;
+  --ink:       #ffffff;
+  --ink-2:     #c3c2b7;
+  --ink-muted: #898781;
+  --grid:      #2c2c2a;
+  --axis:      #383835;
+  --border:    rgba(255, 255, 255, 0.10);
+  --wash:      rgba(255, 255, 255, 0.05);
+
+  --series-1: #3987e5;
+  --series-2: #199e70;
+  --series-3: #c98500;
+  --series-4: #008300;
+  --series-5: #9085e9;
+  --series-6: #e66767;
+
+  --good-ink: #0ca30c;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--plane);
+  color: var(--ink);
+  font-family: var(--font);
+  font-size: 15px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ---------- brand ---------- */
+
+.brand {
+  display: flex; align-items: center; gap: 9px;
+  font-weight: 750; text-decoration: none; color: var(--ink);
+  letter-spacing: -0.03em;
+}
+.brand-mark {
+  width: 26px; height: 26px; border-radius: 9px;
+  background: linear-gradient(140deg, var(--series-1), var(--series-2));
+  color: #fff;
+  display: grid; place-items: center;
+  font-size: 15px; font-weight: 700;
+  transform: rotate(-6deg);
+  box-shadow: 0 2px 7px rgba(42, 120, 214, 0.32);
+}
+.brand-name { font-size: 18px; }
+.brand:hover .brand-mark { transform: rotate(6deg); }
+.brand-mark { transition: transform 0.18s ease; }
+
+/* ---------- top bar ---------- */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 11px 20px;
+  background: var(--surface-1);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  flex-wrap: wrap;
+}
+
+.nav { display: flex; gap: 2px; flex: 1; flex-wrap: wrap; }
+
+.nav-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 13px;
+  border-radius: 9px;
+  cursor: pointer;
+}
+.nav-btn:hover { background: var(--wash); color: var(--ink); }
+.nav-btn[aria-current="page"] { background: var(--ink); color: var(--surface-1); font-weight: 600; }
+
+.theme-toggle {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: transparent;
+  color: var(--ink-2);
+  width: 32px; height: 32px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 15px;
+  line-height: 1;
+}
+.theme-toggle:hover { background: var(--wash); }
+
+/* ---------- layout ---------- */
+
+.view { max-width: 1120px; margin: 0 auto; padding: 26px 20px 60px; width: 100%; flex: 1; }
+
+.view-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+h1 { font-size: 25px; margin: 0; letter-spacing: -0.03em; font-weight: 700; }
+h2 { font-size: 15px; margin: 0 0 12px; letter-spacing: -0.015em; font-weight: 650; }
+.sub { color: var(--ink-2); font-size: 14px; margin: 0 0 20px; max-width: 62ch; }
+
+.card {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 16px;
+}
+
+.grid { display: grid; gap: 14px; }
+.grid-4 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+.grid-2 { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); }
+
+/* ---------- stat tiles ---------- */
+
+.tile {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 15px 17px;
+}
+.tile-label {
+  font-size: 12px;
+  color: var(--ink-2);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+}
+.tile-value { font-size: 27px; font-weight: 680; letter-spacing: -0.03em; margin-top: 5px; }
+.tile-note { font-size: 12.5px; color: var(--ink-muted); margin-top: 3px; }
+
+.swatch { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+
+.pos { color: var(--good-ink); }
+.neg { color: var(--critical); }
+
+/* ---------- bucket rows ---------- */
+
+.bucket { padding: 15px 0; border-bottom: 1px solid var(--grid); }
+.bucket:last-child { border-bottom: 0; }
+.bucket-top {
+  display: flex; align-items: baseline; gap: 10px;
+  justify-content: space-between; flex-wrap: wrap;
+}
+.bucket-name { display: flex; align-items: center; gap: 8px; font-weight: 650; }
+.bucket-nums { font-size: 13.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+
+.meter {
+  position: relative;
+  height: 9px;
+  background: var(--grid);
+  border-radius: 5px;
+  margin-top: 9px;
+  overflow: hidden;
+}
+.meter-fill { position: absolute; inset: 0 auto 0 0; border-radius: 5px; }
+
+/* ---------- tables ---------- */
+
+.table-wrap { overflow-x: auto; }
+
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+th {
+  text-align: left;
+  font-size: 11.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--ink-muted);
+  font-weight: 700;
+  padding: 0 8px 8px;
+  border-bottom: 1px solid var(--grid);
+  white-space: nowrap;
+}
+td { padding: 3px 8px; border-bottom: 1px solid var(--grid); vertical-align: middle; }
+tr:last-child td { border-bottom: 0; }
+.num { text-align: right; font-variant-numeric: tabular-nums; }
+tfoot td { font-weight: 680; border-top: 1px solid var(--axis); border-bottom: 0; padding-top: 10px; }
+
+/* ---------- form controls ---------- */
+
+input, select, textarea, button { font: inherit; color: inherit; }
+
+.inp {
+  appearance: none;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 5px 8px;
+  width: 100%;
+  min-width: 0;
+  color: var(--ink);
+}
+.inp:hover { border-color: var(--border); }
+.inp:focus { outline: 2px solid var(--series-1); outline-offset: -1px; border-color: transparent; }
+.inp.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+select.inp { cursor: pointer; }
+select.inp option { background: var(--surface-1); color: var(--ink); }
+
+.field { display: block; margin-bottom: 12px; }
+.field > span {
+  display: block;
+  font-size: 12px;
+  color: var(--ink-2);
+  font-weight: 650;
+  margin-bottom: 4px;
+}
+.field .inp { border-color: var(--border); background: var(--plane); }
+.bordered { border-color: var(--border) !important; }
+
+.btn {
+  appearance: none;
+  border: 1px solid var(--border);
+  background: var(--surface-1);
+  border-radius: 9px;
+  padding: 6px 14px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn:hover { background: var(--wash); }
+.btn-primary { background: var(--ink); color: var(--surface-1); border-color: var(--ink); font-weight: 600; }
+.btn-primary:hover { opacity: 0.86; background: var(--ink); }
+.btn-danger { color: var(--critical); }
+.btn-sm { padding: 3px 10px; font-size: 13px; }
+.btn-icon {
+  border: 0; background: transparent; color: var(--ink-muted);
+  cursor: pointer; padding: 4px 7px; border-radius: 7px; line-height: 1;
+}
+.btn-icon:hover { background: var(--wash); color: var(--critical); }
+
+/* The expand control only exists on narrow screens; the desktop table shows
+   every column already. */
+.td-act { display: flex; align-items: center; justify-content: flex-end; gap: 2px; }
+.btn-more {
+  display: none;
+  place-items: center;
+  border: 1px solid var(--border);
+  background: var(--surface-1);
+  color: var(--ink-2);
+  border-radius: 8px;
+  width: 30px; height: 30px;
+  font-size: 13px; line-height: 1;
+  cursor: pointer;
+  flex: none;
+}
+.btn-more:hover { background: var(--wash); color: var(--ink); }
+
+.row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.row-end { justify-content: flex-end; }
+.spacer { flex: 1; }
+
+/* ---------- toggle switch ---------- */
+
+.switch { display: inline-flex; align-items: center; cursor: pointer; }
+.switch input { position: absolute; opacity: 0; width: 0; height: 0; }
+.switch-track {
+  width: 38px; height: 22px; border-radius: 11px;
+  background: var(--grid); position: relative;
+  transition: background 0.15s ease;
+  flex: none;
+}
+.switch-track::after {
+  content: ''; position: absolute; top: 3px; left: 3px;
+  width: 16px; height: 16px; border-radius: 50%;
+  background: var(--surface-1);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.28);
+  transition: transform 0.15s ease;
+}
+.switch input:checked + .switch-track { background: var(--series-4); }
+.switch input:checked + .switch-track::after { transform: translateX(16px); }
+.switch input:focus-visible + .switch-track { outline: 2px solid var(--series-1); outline-offset: 2px; }
+
+/* ---------- month stepper ---------- */
+
+.stepper { display: flex; align-items: center; gap: 4px; }
+.stepper .label { min-width: 134px; text-align: center; font-weight: 650; font-size: 14px; }
+
+/* ---------- donut ---------- */
+
+.donut-wrap { display: flex; gap: 22px; align-items: center; flex-wrap: wrap; }
+.donut-center-1 { font-size: 20px; font-weight: 680; letter-spacing: -0.02em; }
+.donut-center-2 { font-size: 11px; fill: var(--ink-muted); }
+.legend { display: grid; gap: 7px; flex: 1; min-width: 180px; }
+.legend-item { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--ink-2); }
+.legend-item b { color: var(--ink); font-weight: 650; font-variant-numeric: tabular-nums; }
+
+/* ---------- notes, banners, misc ---------- */
+
+.empty {
+  text-align: center;
+  padding: 34px 16px;
+  color: var(--ink-muted);
+  font-size: 14px;
+}
+
+.note {
+  display: flex; gap: 9px;
+  font-size: 13.5px;
+  padding: 11px 14px;
+  border-radius: 11px;
+  border: 1px solid var(--border);
+  background: var(--wash);
+  margin-bottom: 14px;
+  align-items: flex-start;
+}
+.note-warn { border-color: var(--warning); }
+
+.banner {
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  font-size: 13.5px;
+  padding: 11px 14px;
+  border-radius: 11px;
+  border: 1px solid var(--series-4);
+  background: var(--wash);
+  margin-bottom: 14px;
+}
+
+/* Distinct from the green "we posted your regulars" banner — this one is a
+   standing state, not an event, so it reads as a frame around the app. */
+.banner-demo {
+  border-color: var(--series-5);
+  background: var(--surface-1);
+}
+
+.invite { border-color: var(--series-1); }
+.invite h2 { font-size: 17px; }
+.invite .sub { margin-bottom: 14px; }
+
+.pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 650;
+  padding: 3px 10px; border-radius: 20px;
+  border: 1px solid var(--border);
+  color: var(--ink-2);
+}
+.pill-on { border-color: var(--series-4); color: var(--good-ink); }
+
+.hint { font-size: 12.5px; color: var(--ink-muted); }
+.bucket-blurb { font-size: 13px; color: var(--ink-muted); font-style: italic; }
+
+/* ---------- footer ---------- */
+
+.footer {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; flex-wrap: wrap;
+  padding: 20px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-1);
+  color: var(--ink-muted);
+  font-size: 13px;
+}
+.footer b { color: var(--ink-2); font-weight: 650; }
+.footer-mark {
+  width: 18px; height: 18px; border-radius: 6px;
+  background: linear-gradient(140deg, var(--series-1), var(--series-2));
+  color: #fff; display: grid; place-items: center;
+  font-size: 11px; font-weight: 700;
+}
+.footer-dot { opacity: 0.5; }
+.footer-rne { letter-spacing: 0.02em; }
+
+/* ---------- modal ---------- */
+
+.modal-backdrop {
+  position: fixed; inset: 0; z-index: 50;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.modal-backdrop[hidden] { display: none; }
+.modal {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 720px;
+  max-height: 86vh;
+  overflow-y: auto;
+  padding: 24px;
+}
+.modal h2 { font-size: 18px; }
+
+/* ---------- toast ---------- */
+
+.toast {
+  position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
+  background: var(--ink); color: var(--surface-1);
+  padding: 10px 18px; border-radius: 10px; font-size: 14px; font-weight: 500;
+  z-index: 60; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22);
+}
+.toast[hidden] { display: none; }
+
+@media (max-width: 600px) {
+  .topbar { padding: 10px 12px; gap: 10px; }
+  .view { padding: 18px 12px 50px; }
+  .nav { order: 3; width: 100%; }
+  .nav-btn { flex: 1; text-align: center; padding: 6px 4px; }
+  h1 { font-size: 22px; }
+
+  /* Editable tables become stacked cards. Logging a charge is the one thing
+     people do on a phone, and it was behind a horizontal scrollbar — six or
+     seven columns of inputs will not fit 375px however they are shaved.
+     Read-only tables (the CSV preview) keep scrolling; they are narrow and
+     stacking them would bury the modal's buttons. */
+  .stack, .stack tbody, .stack tfoot { display: block; width: 100%; }
+
+  .stack thead {
+    position: absolute;
+    width: 1px; height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  /* Labels sit beside their field rather than above it. Stacking them reads
+     nicer in isolation but costs ~14px a field, and with seven fields across
+     fifty charges that is several screens of pure label. */
+  .stack tr, .stack td { display: block; width: 100%; }
+
+  .stack tr {
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--plane);
+    padding: 9px 11px;
+    margin-bottom: 10px;
+  }
+  .stack tr:last-child { margin-bottom: 0; }
+
+  .stack td {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: auto !important;      /* beats the desktop inline column widths */
+    min-width: 0;
+    padding: 2px 0;
+    border-bottom: 0;
+  }
+
+  .stack td[data-label]::before {
+    content: attr(data-label);
+    flex: 0 0 74px;
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--ink-2);
+  }
+
+  /* The label carries the meaning, so inputs get a visible edge instead of
+     the desktop hover-to-reveal border. */
+  .stack td .inp { border-color: var(--border); background: var(--surface-1); }
+  .stack td .inp.num { text-align: left; }
+
+  /* Cells with no label are actions — a short strip, not a whole field row. */
+  .stack td:not([data-label]) {
+    justify-content: flex-end;
+    padding: 0;
+    margin-top: 2px;
+  }
+  .stack td:empty, .stack .td-swatch { display: none; }
+
+  /* ---- collapsed rows ----
+     Six editable fields per charge is right when you are correcting one and
+     absurd when you are scanning fifty. Closed, a row is a single line with
+     the two fields that get edited most still live; open, it is the full
+     card. Only Spending does this — it is the only screen with the volume. */
+  .stack tr:not(.open) {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 8px 6px 11px;
+    margin-bottom: 7px;
+  }
+  .stack tr:not(.open) td { padding: 0; margin: 0; }
+  .stack tr:not(.open) td::before { display: none; }
+
+  .stack tr:not(.open) td[data-label="Date"],
+  .stack tr:not(.open) td[data-label="Bucket"],
+  .stack tr:not(.open) td[data-label="Note"],
+  .stack tr:not(.open) td[data-label="Toward"] { display: none; }
+
+  .stack tr:not(.open) td[data-label="Charge"] { flex: 1 1 auto; min-width: 0; }
+  .stack tr:not(.open) td[data-label="Amount"] { flex: 0 0 88px; }
+  .stack tr:not(.open) td[data-label="Amount"] .inp { text-align: right; }
+  .stack tr:not(.open) .td-act { flex: 0 0 auto; }
+  .stack tr:not(.open) .td-act .btn-icon { display: none; }   /* delete needs the row open */
+
+  .btn-more { display: inline-grid; }
+  .stack tr.open .td-act { gap: 4px; }
+
+  .stack tfoot tr { background: transparent; border: 0; padding: 0 11px; }
+  .stack tfoot td { font-weight: 680; }
+
+  .table-wrap { overflow-x: visible; }
+
+  /* Stat tiles stop being four cramped columns. */
+  .grid-4 { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+  .tile-value { font-size: 23px; }
+
+  .modal { padding: 18px; max-height: 90vh; }
+}

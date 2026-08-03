@@ -1,0 +1,28 @@
+# ---------------------------------------------------------------
+# This repository is PUBLIC and is published to GitHub Pages.
+# Everything listed here stays on the local machine and is never
+# uploaded. Think hard before removing a line from this file.
+# ---------------------------------------------------------------
+
+# Real financial data. Not example data — an actual household's income,
+# transactions and debt balances.
+my-budget-data.json
+*.xlsx
+
+# Backups exported from the app. Same contents, same reason.
+cense-backup-*.json
+cense-DEMO-backup-*.json
+
+# Personal setup notes: contains real figures, the debt picture and the
+# spreadsheet's actual totals. The public README is the sanitised half.
+MY-SETUP.md
+
+# Local editor/agent config: contains machine paths and usernames.
+.claude/
+.vscode/
+.idea/
+
+# OS noise
+.DS_Store
+Thumbs.db
+desktop.ini

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cense — know where it went</title>
+<meta name="description" content="Cense is a budgeting app that admits some of it was bullshit. Percentage buckets, recurring charges on autopilot, and a spending category for the stuff you'd rather not defend.">
+<link rel="stylesheet" href="styles.css">
+
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="icon" href="icon-192.png" sizes="192x192" type="image/png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<meta name="theme-color" content="#fcfcfb" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#1a1a19" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Cense">
+<meta name="mobile-web-app-capable" content="yes">
+</head>
+<body>
+
+<header class="topbar">
+  <a class="brand" href="landing.html" title="About Cense">
+    <span class="brand-mark" aria-hidden="true">¢</span>
+    <span class="brand-name">Cense</span>
+  </a>
+  <nav class="nav" id="nav" aria-label="Sections">
+    <button class="nav-btn" data-view="dashboard">Dashboard</button>
+    <button class="nav-btn" data-view="transactions">Spending</button>
+    <button class="nav-btn" data-view="regulars">Regulars</button>
+    <button class="nav-btn" data-view="funds">Funds</button>
+    <button class="nav-btn" data-view="debts">Debts</button>
+    <button class="nav-btn" data-view="settings">Settings</button>
+  </nav>
+  <button class="theme-toggle" id="themeToggle" title="Switch light / dark" aria-label="Switch light / dark">◐</button>
+</header>
+
+<main id="view" class="view"></main>
+
+<footer class="footer">
+  <span class="footer-mark">¢</span>
+  <span><b>Cense</b> — know where it went.</span>
+  <span class="footer-dot">·</span>
+  <span class="footer-rne">An RNE Holdings Product</span>
+</footer>
+
+<div id="modal" class="modal-backdrop" hidden></div>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="app.js"></script>
+<script>
+  /* Service workers need a secure origin, so this is a no-op when the page is
+     opened straight off the disk with file://. The app itself works either way
+     — this only adds installability and offline caching. */
+  if ('serviceWorker' in navigator && location.protocol.indexOf('http') === 0) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').catch(function (e) {
+        console.warn('Offline support unavailable:', e);
+      });
+    });
+  }
+</script>
+</body>
+</html>

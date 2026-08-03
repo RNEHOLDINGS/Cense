@@ -147,7 +147,7 @@ body {
 .nav-btn:hover { background: var(--wash); color: var(--ink); }
 .nav-btn[aria-current="page"] { background: var(--ink); color: var(--surface-1); font-weight: 600; }
 
-.theme-toggle {
+.theme-toggle, .icon-toggle {
   appearance: none;
   border: 1px solid var(--border);
   background: transparent;
@@ -157,8 +157,50 @@ body {
   cursor: pointer;
   font-size: 15px;
   line-height: 1;
+  display: grid;
+  place-items: center;
+  flex: none;
 }
-.theme-toggle:hover { background: var(--wash); }
+.theme-toggle:hover, .icon-toggle:hover { background: var(--wash); color: var(--ink); }
+.icon-toggle[aria-pressed="true"] {
+  background: var(--ink);
+  color: var(--surface-1);
+  border-color: var(--ink);
+}
+
+/* ---------- privacy mode ---------- */
+
+/* Text amounts are masked at the formatter, but these are live <input> values
+   that have to stay editable, so they get blurred instead — and clear the
+   moment you focus one, because you meant to look at that one. */
+.private input[data-field="amount"],
+.private input[data-field="balance"],
+.private input[data-field="target"],
+.private input[data-plan-amount],
+.private #s-income,
+.private #s-startbalance,
+.private #f-amount,
+.private #d-balance,
+.private #fund-target {
+  filter: blur(6px);
+  transition: filter 0.12s ease;
+}
+.private input[data-field="amount"]:focus,
+.private input[data-field="balance"]:focus,
+.private input[data-field="target"]:focus,
+.private input[data-plan-amount]:focus,
+.private #s-income:focus,
+.private #s-startbalance:focus,
+.private #f-amount:focus,
+.private #d-balance:focus,
+.private #fund-target:focus {
+  filter: none;
+}
+
+/* The bars encode "how much of the bucket is gone", which is a ratio, not a
+   figure — but a full meter beside a masked number still says "you overspent",
+   so they flatten too. */
+.private .meter-fill { opacity: 0.28; }
 
 /* ---------- layout ---------- */
 

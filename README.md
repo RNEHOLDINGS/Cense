@@ -72,6 +72,25 @@ Otherwise start from **Settings** — put in what you make, adjust the buckets,
 then add your recurring charges under **Regulars**. Bank CSVs import from
 **Spending → Import CSV**.
 
+## Hiding the numbers
+
+The eye button in the top bar masks every amount on screen, for when someone is
+standing behind you. **Ctrl+H** does the same thing without reaching for the
+mouse, which is usually the point.
+
+Masking only the income figure would be theatre: every bucket prints its
+percentage beside its allocation, so anyone could divide one by the other and
+recover the salary. So all currency goes at once — tiles, buckets, the chart,
+totals, funds, debts. Amounts in editable fields blur instead of masking, and
+clear when you focus one, because you meant to look at that one.
+
+Dates, payees, percentages and categories stay readable, so the app is still
+navigable while hidden. The setting survives a reload and is applied before the
+first paint, so nothing flashes into view on the way.
+
+It is a privacy screen, not a lock. Anyone who can use the app can press the
+button — it protects against a glance, not against someone at your keyboard.
+
 ## The screens
 
 | Screen | What it is |

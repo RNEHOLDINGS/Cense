@@ -10,6 +10,7 @@
   var STORE_KEY = 'cense.v1';
   var LEGACY_KEY = 'budgetapp.v1';
   var THEME_KEY = 'cense.theme';
+  var PRIVATE_KEY = 'cense.private';   /* amounts masked for shoulder-surfing */
   var DEMO_KEY = 'cense.demo';        /* '1' while the sample household is loaded */
   var PREDEMO_KEY = 'cense.predemo';  /* the real budget, parked while it is */
 
@@ -31,8 +32,15 @@
   var fmtMoney0 = new Intl.NumberFormat('en-US', {
     style: 'currency', currency: 'USD', maximumFractionDigits: 0
   });
-  var money = function (n) { return fmtMoney.format(n || 0); };
-  var money0 = function (n) { return fmtMoney0.format(n || 0); };
+  /* Privacy mode. Masking only the income figure would be theatre — every
+     bucket prints "55%" beside its allocation, so anyone glancing at the screen
+     could divide one by the other and recover the salary. Every currency figure
+     goes at once or none of them do. */
+  var MASK = '••••';
+  var hideMoney = false;
+
+  var money = function (n) { return hideMoney ? MASK : fmtMoney.format(n || 0); };
+  var money0 = function (n) { return hideMoney ? MASK : fmtMoney0.format(n || 0); };
 
   var esc = function (s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -2158,6 +2166,50 @@
     });
   }
 
+  /* ---------- privacy ---------- */
+
+  var EYE = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" ' +
+    'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+
+  var EYE_OFF = '<svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" ' +
+    'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24' +
+    'A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>' +
+    '<line x1="1" y1="1" x2="23" y2="23"/></svg>';
+
+  function paintPrivacy() {
+    var btn = document.getElementById('privacyToggle');
+    if (!btn) return;
+    document.body.classList.toggle('private', hideMoney);
+    btn.innerHTML = hideMoney ? EYE_OFF : EYE;
+    btn.setAttribute('aria-pressed', hideMoney ? 'true' : 'false');
+    var label = hideMoney ? 'Show amounts' : 'Hide amounts';
+    btn.setAttribute('aria-label', label);
+    btn.setAttribute('title', label + ' (Ctrl+H)');
+  }
+
+  function togglePrivacy() {
+    hideMoney = !hideMoney;
+    try { localStorage.setItem(PRIVATE_KEY, hideMoney ? '1' : '0'); } catch (e) { /* fine, just not sticky */ }
+    paintPrivacy();
+    render();
+  }
+
+  function initPrivacy() {
+    try { hideMoney = localStorage.getItem(PRIVATE_KEY) === '1'; } catch (e) { hideMoney = false; }
+    paintPrivacy();
+    document.getElementById('privacyToggle').addEventListener('click', togglePrivacy);
+    /* Someone walking up behind you is a two-second problem, and reaching for
+       the mouse is most of those two seconds. */
+    document.addEventListener('keydown', function (e) {
+      if ((e.ctrlKey || e.metaKey) && !e.shiftKey && !e.altKey && (e.key === 'h' || e.key === 'H')) {
+        e.preventDefault();
+        togglePrivacy();
+      }
+    });
+  }
+
   /* ---------- theme ---------- */
 
   function initTheme() {
@@ -2194,6 +2246,7 @@
   });
 
   initTheme();
+  initPrivacy();      /* before the first render, so nothing flashes unmasked */
   load();
   /* ?demo=1 is how the landing page hands someone straight into a full app
      rather than an empty one. enterDemo commits, which renders. */

@@ -145,6 +145,48 @@
     save:  'Future you says thanks.'
   };
 
+  var ASSET_KINDS = [
+    { id: 'retirement', name: 'Retirement', hint: '401(k), IRA, pension' },
+    { id: 'property',   name: 'Property',   hint: 'What it would sell for, not what is left on the mortgage' },
+    { id: 'business',   name: 'Business',   hint: 'Your share of anything you own' },
+    { id: 'investment', name: 'Investments', hint: 'Brokerage, index funds, crypto' },
+    { id: 'cash',       name: 'Cash',       hint: 'Current and savings accounts' },
+    { id: 'vehicle',    name: 'Vehicles',   hint: 'Resale value' },
+    { id: 'other',      name: 'Other',      hint: 'Anything else worth something' }
+  ];
+
+  /* Federal Reserve Survey of Consumer Finances, 2022 — the most recent
+     published wave; the 2025 survey is still in the field and does not report
+     until late 2026.
+
+     These six bands are the finest the SCF publishes. Narrower ones (a figure
+     for 23–27 year olds, say) do not exist anywhere authoritative — they would
+     have to be interpolated, and an invented benchmark is worse than none in a
+     screen people use to judge themselves.
+
+     Median leads everywhere in the UI. The mean is carried only so it can be
+     shown for what it is: under 35 it is 4.7x the median, because a handful of
+     enormous fortunes drag it upward and almost nobody is near it. */
+  var SCF = {
+    year: 2022,
+    bands: [
+      { max: 34,  label: 'under 35', median: 39040,  mean: 183380 },
+      { max: 44,  label: '35 to 44', median: 135300, mean: 548070 },
+      { max: 54,  label: '45 to 54', median: 246700, mean: 971270 },
+      { max: 64,  label: '55 to 64', median: 364270, mean: 1564070 },
+      { max: 74,  label: '65 to 74', median: 410000, mean: 1780720 },
+      { max: 999, label: '75+',      median: 334700, mean: 1620100 }
+    ]
+  };
+
+  function bandForAge(age) {
+    if (!age) return null;
+    for (var i = 0; i < SCF.bands.length; i++) {
+      if (age <= SCF.bands[i].max) return SCF.bands[i];
+    }
+    return SCF.bands[SCF.bands.length - 1];
+  }
+
   /* ---------- state ---------- */
 
   function blankState() {
@@ -154,7 +196,10 @@
         income: 0,
         carryover: true,     /* last month's overspend follows you into this one */
         startBalance: 0,     /* 0 = the cash-flow strip stays hidden */
-        incomeDay: 1
+        incomeDay: 1,
+        age: 0,              /* optional; 0 means "not saying", and nothing breaks */
+        returnPct: 7,        /* assumed annual growth for the projection */
+        annualAdd: 0         /* what gets added to the pile each year */
       },
       /* kind 'save' means money that moved but was not consumed. It is the
          difference between "where it went" and "what you have left", and the
@@ -168,6 +213,9 @@
       plan: [],
       txns: [],
       debts: [],
+      /* Anything that would show up on the asset side of a balance sheet.
+         Net worth is these minus what is still owed on the Debts screen. */
+      assets: [],
       /* A fund is a pot with a target. Its balance is never stored — it is the
          sum of what has been paid into it minus what has been taken out, so it
          cannot drift away from the transactions that justify it. */
@@ -251,6 +299,15 @@
       return row;
     });
 
+    var assets = (Array.isArray(s.assets) ? s.assets : []).filter(obj).map(function (a) {
+      return {
+        id: reid(a.id),
+        name: str(a.name),
+        value: num(a.value),
+        kind: ASSET_KINDS.some(function (k) { return k.id === a.kind; }) ? a.kind : 'other'
+      };
+    });
+
     var funds = (Array.isArray(s.funds) ? s.funds : []).filter(obj).map(function (f) {
       return {
         id: reid(f.id),
@@ -317,12 +374,16 @@
         income: num(set.income),
         carryover: set.carryover === undefined ? true : !!set.carryover,
         startBalance: num(set.startBalance),
-        incomeDay: Math.min(Math.max(Math.round(num(set.incomeDay)) || 1, 1), 31)
+        incomeDay: Math.min(Math.max(Math.round(num(set.incomeDay)) || 1, 1), 31),
+        age: Math.min(Math.max(Math.round(num(set.age)) || 0, 0), 120),
+        returnPct: set.returnPct === undefined ? 7 : Math.min(Math.max(num(set.returnPct), -20), 40),
+        annualAdd: num(set.annualAdd)
       },
       buckets: buckets,
       plan: plan,
       txns: txns,
       debts: debts,
+      assets: assets,
       funds: funds,
       applied: applied,
       memory: memory
@@ -535,6 +596,33 @@
     return txnsInMonth(ym)
       .filter(function (t) { return t.bucketId === bucketId; })
       .reduce(function (a, t) { return a + num(t.amount); }, 0);
+  }
+
+  /* ---------- net worth ---------- */
+
+  function assetsTotal() {
+    return state.assets.reduce(function (a, x) { return a + num(x.value); }, 0);
+  }
+
+  /* Owed now, not owed originally — so paying a debt down moves net worth up
+     by exactly the amount the Debts screen says you paid off. */
+  function debtsTotal() {
+    return state.debts.reduce(function (a, d) { return a + debtNow(d); }, 0);
+  }
+
+  function netWorth() { return assetsTotal() - debtsTotal(); }
+
+  /* Compound the pile forward, adding the same contribution each year. One
+     point per year including today, so the caller can just draw it. */
+  function projectWorth(start, annualAdd, ratePct, years) {
+    var r = num(ratePct) / 100;
+    var pts = [start];
+    var v = start;
+    for (var i = 1; i <= years; i++) {
+      v = v * (1 + r) + num(annualAdd);
+      pts.push(v);
+    }
+    return pts;
   }
 
   /* ---------- funds ---------- */
@@ -798,6 +886,53 @@
       '</svg>' +
       '<div class="legend">' + legend + '</div>' +
       '</div>';
+  }
+
+  /* A plain line chart. Values are named in the labels underneath rather than
+     left to the shape of the curve, and the fill is the same series colour as
+     everything else so it reads as one system. */
+  function lineChart(pts, startAge) {
+    var W = 640, H = 190, PL = 6, PR = 6, PT = 12, PB = 26;
+    var n = pts.length;
+    if (n < 2) return '';
+
+    var lo = Math.min.apply(null, pts.concat([0]));
+    var hi = Math.max.apply(null, pts);
+    if (hi === lo) hi = lo + 1;
+
+    var x = function (i) { return PL + (i / (n - 1)) * (W - PL - PR); };
+    var y = function (v) { return PT + (1 - (v - lo) / (hi - lo)) * (H - PT - PB); };
+
+    var line = '', area = '';
+    for (var i = 0; i < n; i++) {
+      line += (i ? ' L' : 'M') + x(i).toFixed(1) + ' ' + y(pts[i]).toFixed(1);
+    }
+    area = line + ' L' + x(n - 1).toFixed(1) + ' ' + y(Math.max(lo, 0)).toFixed(1) +
+           ' L' + x(0).toFixed(1) + ' ' + y(Math.max(lo, 0)).toFixed(1) + ' Z';
+
+    /* A zero line, because a negative net worth is a real place to be and the
+       chart should not quietly imply the floor is zero. */
+    var zero = (lo < 0 && hi > 0)
+      ? '<line x1="' + PL + '" y1="' + y(0).toFixed(1) + '" x2="' + (W - PR) +
+        '" y2="' + y(0).toFixed(1) + '" stroke="var(--axis)" stroke-width="1" stroke-dasharray="3 3"></line>'
+      : '';
+
+    var ticks = '';
+    [0, Math.floor((n - 1) / 2), n - 1].forEach(function (i) {
+      var lbl = startAge ? 'age ' + (startAge + i) : '+' + i + 'y';
+      ticks += '<text x="' + x(i).toFixed(1) + '" y="' + (H - 8) +
+        '" text-anchor="' + (i === 0 ? 'start' : i === n - 1 ? 'end' : 'middle') +
+        '" class="chart-tick">' + esc(lbl) + '</text>';
+    });
+
+    return '<div class="chart-wrap"><svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" ' +
+      'role="img" aria-label="Projected net worth over time">' +
+      zero +
+      '<path d="' + area + '" fill="var(--series-1)" opacity="0.12"></path>' +
+      '<path d="' + line + '" fill="none" stroke="var(--series-1)" stroke-width="2.5" ' +
+      'stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"></path>' +
+      ticks +
+      '</svg></div>';
   }
 
   /* ---------- shared bits ---------- */
@@ -1187,6 +1322,156 @@
       '<div class="note"><span>💡</span><span>Committing <b>' + money(totalPlanned) + '</b> of your ' +
         money(income) + ' a month. Anything with Auto on lands in <b>Spending</b> automatically; the rest is just your plan on paper.</span></div>' +
       sections;
+  }
+
+  /* ---------- net worth ---------- */
+
+  function viewWorth() {
+    var assets = assetsTotal();
+    var owed = debtsTotal();
+    var worth = assets - owed;
+    var age = num(state.settings.age);
+    var band = bandForAge(age);
+
+    var byKind = ASSET_KINDS.map(function (k) {
+      var items = state.assets.filter(function (a) { return a.kind === k.id; });
+      return { kind: k, total: items.reduce(function (a, x) { return a + num(x.value); }, 0), count: items.length };
+    }).filter(function (r) { return r.count > 0; });
+
+    var rows = state.assets.map(function (a) {
+      var aid = esc(a.id);
+      return '<tr>' +
+        '<td data-label="What it is"><input class="inp" value="' + esc(a.name) + '" data-id="' + aid + '" data-field="name" data-kind="asset" placeholder="e.g. 401(k)"></td>' +
+        '<td data-label="Type" style="width:150px"><select class="inp" data-id="' + aid + '" data-field="kind" data-kind="asset">' +
+          ASSET_KINDS.map(function (k) {
+            return '<option value="' + k.id + '"' + (k.id === a.kind ? ' selected' : '') + '>' + esc(k.name) + '</option>';
+          }).join('') +
+        '</select></td>' +
+        '<td data-label="Worth" style="width:150px"><input class="inp num" value="' + num(a.value).toFixed(2) + '" data-id="' + aid + '" data-field="value" data-kind="asset" inputmode="decimal"></td>' +
+        '<td class="td-act" style="width:34px"><button class="btn-icon" data-act="del-asset" data-id="' + aid + '" aria-label="Delete" title="Delete">✕</button></td>' +
+        '</tr>';
+    }).join('');
+
+    /* ---- where you sit ---- */
+    var compare;
+    if (!band) {
+      compare = '<div class="card">' +
+        '<h2>How you compare</h2>' +
+        '<p class="sub" style="margin-bottom:12px">Put your age in below and Cense will show the typical net worth for people in your bracket. It is optional and it stays on this device like everything else.</p>' +
+        '<label class="field" style="max-width:150px"><span>Your age</span>' +
+          '<input class="inp num bordered" id="s-age" value="" placeholder="optional" inputmode="numeric"></label>' +
+      '</div>';
+    } else {
+      var med = band.median;
+      var ratio = med > 0 ? worth / med : 0;
+      /* The marker is placed on a scale that runs to twice the median, so the
+         midpoint of the bar is the typical person rather than an arbitrary top. */
+      var pos = Math.max(Math.min(ratio / 2, 1), 0) * 100;
+      var ahead = worth >= med;
+
+      compare =
+        '<div class="card">' +
+          '<h2>How you compare</h2>' +
+          '<div class="bucket-top">' +
+            '<span class="bucket-name">You &middot; ' + esc(band.label) + '</span>' +
+            '<span class="bucket-nums"><b>' + money0(worth) + '</b> vs a typical ' +
+              money0(med) + '</span>' +
+          '</div>' +
+          '<div class="scale">' +
+            '<div class="scale-median" style="left:50%"></div>' +
+            '<div class="scale-you" style="left:' + pos.toFixed(1) + '%;background:' +
+              (ahead ? 'var(--series-4)' : 'var(--series-1)') + '"></div>' +
+          '</div>' +
+          '<div class="scale-legend"><span>$0</span><span>typical ' + money0(med) + '</span><span>' + money0(med * 2) + '+</span></div>' +
+          '<div class="hint" style="margin-top:12px">' +
+            (worth >= med
+              ? 'You are <b class="pos">' + money0(worth - med) + ' above</b> the median for ' + esc(band.label) + '.'
+              : 'You are <b>' + money0(med - worth) + '</b> below the median for ' + esc(band.label) + '. ' +
+                'The median is the middle, not a target — half of households sit below it by definition.') +
+          '</div>' +
+          '<div class="hint" style="margin-top:8px">The <b>mean</b> for this bracket is ' + money0(band.mean) +
+            ', but that is not the typical person: a small number of very large fortunes pull it up, ' +
+            'and far more than half of households sit below it. The median is the middle.</div>' +
+          '<div class="row" style="margin-top:12px">' +
+            '<label class="field" style="margin:0;max-width:130px"><span>Your age</span>' +
+              '<input class="inp num bordered" id="s-age" value="' + age + '" inputmode="numeric"></label>' +
+            '<span class="spacer"></span>' +
+            '<button class="btn btn-sm" data-act="clear-age">Stop comparing</button>' +
+          '</div>' +
+          '<div class="hint" style="margin-top:10px">Source: Federal Reserve <b>Survey of Consumer Finances, ' + SCF.year + '</b> — ' +
+            'the most recent published. It reports six age bands and no finer, so there is no such thing as an ' +
+            'average for a single year of age. Figures are per household, not per person.</div>' +
+        '</div>';
+    }
+
+    /* ---- projection ---- */
+    var rate = num(state.settings.returnPct);
+    var add = num(state.settings.annualAdd);
+    /* Thirty years by default, but never past 100 — projecting an 85-year-old
+       out to 115 is arithmetic nobody asked for. */
+    var years = age ? Math.min(30, Math.max(100 - age, 5)) : 30;
+    var pts = projectWorth(worth, add, rate, years);
+    var end = pts[pts.length - 1];
+
+    return head('Net worth',
+        '<span class="pill' + (worth >= 0 ? ' pill-on' : '') + '">' + money0(worth) + '</span>') +
+      '<p class="sub">Everything you own, minus everything you owe. The debts come straight from the <b>Debts</b> screen, so paying one down moves this number on its own.</p>' +
+
+      '<div class="grid grid-4" style="margin-bottom:16px">' +
+        tile('Assets', money(assets), plural(state.assets.length, 'thing', 'things')) +
+        tile('Owed', money(owed), plural(state.debts.length, 'debt', 'debts')) +
+        tile(worth >= 0 ? 'Net worth' : 'Underwater', money(Math.abs(worth)),
+             worth >= 0 ? 'what is actually yours' : 'owed beyond what you own',
+             worth >= 0 ? 'pos' : 'neg') +
+      '</div>' +
+
+      compare +
+
+      '<div class="card">' +
+        '<h2>What you own</h2>' +
+        (state.assets.length
+          ? '<div class="table-wrap"><table class="stack">' +
+              '<thead><tr><th>What it is</th><th>Type</th><th class="num">Worth</th><th></th></tr></thead>' +
+              '<tbody>' + rows + '</tbody>' +
+              '<tfoot><tr><td></td><td data-label="Total">Total</td><td class="num" data-label="Total">' + money(assets) + '</td><td></td></tr></tfoot>' +
+            '</table></div>'
+          : '<div class="empty">Nothing listed yet. Retirement accounts and a home are where most of it usually sits.</div>') +
+        '<div class="row" style="margin-top:12px">' +
+          '<input class="inp bordered" id="a-name" placeholder="e.g. 401(k)" style="flex:2;min-width:150px">' +
+          '<select class="inp bordered" id="a-kind" style="width:150px">' +
+            ASSET_KINDS.map(function (k) { return '<option value="' + k.id + '">' + esc(k.name) + '</option>'; }).join('') +
+          '</select>' +
+          '<input class="inp num bordered" id="a-value" placeholder="0.00" inputmode="decimal" style="width:140px">' +
+          '<button class="btn btn-primary" data-act="add-asset">Add</button>' +
+        '</div>' +
+        '<div class="hint" style="margin-top:8px">Put property in at what it would sell for, and leave the mortgage on the <b>Debts</b> screen — listing both is how the two sides stay honest.</div>' +
+      '</div>' +
+
+      (byKind.length
+        ? '<div class="card"><h2>What it is made of</h2>' +
+          donut(byKind.map(function (r, i) {
+            return { name: r.kind.name, value: r.total, color: slotCss((i % 6) + 1) };
+          }), assets, 'in assets') + '</div>'
+        : '') +
+
+      '<div class="card">' +
+        '<h2>Where it goes from here</h2>' +
+        '<p class="sub" style="margin-bottom:14px">Your net worth today, growing at the rate you set, with what you add each year. It is arithmetic, not a forecast — markets do not return the same number every year, and this pretends they do.</p>' +
+        '<div class="row" style="margin-bottom:14px">' +
+          '<label class="field" style="margin:0"><span>Annual return %</span>' +
+            '<input class="inp num bordered" id="s-return" value="' + rate + '" inputmode="decimal" style="width:110px"></label>' +
+          '<label class="field" style="margin:0"><span>Added per year</span>' +
+            '<input class="inp num bordered" id="s-annualadd" value="' + add.toFixed(2) + '" inputmode="decimal" style="width:140px"></label>' +
+          '<span class="spacer"></span>' +
+          '<span class="bucket-nums">In ' + years + ' years: <b>' + money0(end) + '</b></span>' +
+        '</div>' +
+        lineChart(pts, age || 0) +
+        '<div class="hint" style="margin-top:10px">' +
+          (add <= 0
+            ? 'Adding nothing each year, this is just what today\'s pile does on its own.'
+            : 'Of that ' + money0(end) + ', <b>' + money0(add * years) + '</b> is money you put in and the rest is growth.') +
+        '</div>' +
+      '</div>';
   }
 
   /* ---------- funds ---------- */
@@ -1896,6 +2181,28 @@
         minPayment: 0
       });
       commit();
+    } else if (act === 'add-asset') {
+      var an = document.getElementById('a-name').value.trim();
+      if (!an) { toast('Give it a name first.'); return; }
+      state.assets.push({
+        id: uid(), name: an,
+        kind: document.getElementById('a-kind').value,
+        value: num(document.getElementById('a-value').value)
+      });
+      commit();
+    } else if (act === 'del-asset') {
+      var da = state.assets.filter(function (a) { return a.id === id; })[0];
+      if (!da) return;
+      var daAt = state.assets.indexOf(da);
+      state.assets = state.assets.filter(function (a) { return a.id !== id; });
+      stashUndo('Deleted ' + (da.name || 'an asset') + ' — ' + money(da.value) + '.', function () {
+        state.assets.splice(Math.min(daAt, state.assets.length), 0, da);
+      });
+      commit();
+    } else if (act === 'clear-age') {
+      state.settings.age = 0;
+      commit();
+      toast('Age cleared. The comparison is off.');
     } else if (act === 'add-fund') {
       var fn = document.getElementById('fund-name').value.trim();
       if (!fn) { toast('Give it a name first.'); return; }
@@ -1996,6 +2303,15 @@
       commit(); return;
     }
     if (el.id === 's-startbalance') { state.settings.startBalance = num(el.value); commit(); return; }
+    if (el.id === 's-age') {
+      state.settings.age = Math.min(Math.max(Math.round(num(el.value)) || 0, 0), 120);
+      commit(); return;
+    }
+    if (el.id === 's-return') {
+      state.settings.returnPct = Math.min(Math.max(num(el.value), -20), 40);
+      commit(); return;
+    }
+    if (el.id === 's-annualadd') { state.settings.annualAdd = num(el.value); commit(); return; }
     if (el.id === 's-carryover') { state.settings.carryover = el.checked; commit(); return; }
     if (el.id === 'f-search') return;
     if (!field) return;
@@ -2006,6 +2322,7 @@
              : kind === 'debt' ? state.debts
              : kind === 'bucket' ? state.buckets
              : kind === 'fund' ? state.funds
+             : kind === 'asset' ? state.assets
              : state.txns;
     var item = list.filter(function (x) { return x.id === id; })[0];
     if (!item) return;
@@ -2042,7 +2359,9 @@
          February without the plan forgetting it was the 31st. */
       item.day = Math.min(Math.max(Math.round(num(el.value)) || 1, 1), 31);
     } else if (field === 'kind') {
-      item.kind = el.value === 'save' ? 'save' : 'spend';
+      item.kind = kind === 'asset'
+        ? (ASSET_KINDS.some(function (k) { return k.id === el.value; }) ? el.value : 'other')
+        : (el.value === 'save' ? 'save' : 'spend');
     } else if (field === 'toward') {
       setToward(item, el.value);
     } else if (field === 'every') {
@@ -2052,7 +2371,7 @@
     } else if (field === 'apr') {
       item.apr = Math.min(Math.max(num(el.value), 0), 1000);
     } else if (field === 'amount' || field === 'balance' || field === 'pct' ||
-               field === 'slot' || field === 'target') {
+               field === 'slot' || field === 'target' || field === 'value') {
       item[field] = num(el.value);
     } else {
       item[field] = el.value;
@@ -2153,6 +2472,7 @@
       ui.view === 'transactions' ? viewTransactions() :
       ui.view === 'regulars' ? viewRegulars() :
       ui.view === 'funds' ? viewFunds() :
+      ui.view === 'worth' ? viewWorth() :
       ui.view === 'debts' ? viewDebts() :
       ui.view === 'settings' ? viewSettings() :
       viewDashboard()

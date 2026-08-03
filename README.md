@@ -122,6 +122,47 @@ Set a **needed in** month and Cense checks the arithmetic: starting a $850
 Christmas fund in July gets you to $354 by December, and it will tell you so
 rather than letting you find out in December.
 
+## Net worth
+
+Everything you own minus everything you owe. The liabilities come straight from
+the **Debts** screen, so paying one down moves net worth on its own — there is
+no second place to keep the number up to date.
+
+List assets by type: retirement, property, business, investments, cash,
+vehicles. Property goes in at what it would sell for, with the mortgage left on
+the Debts screen; listing both sides is what keeps the figure honest.
+
+### How you compare
+
+Enter your age — **optional**, and it never leaves the device — and Cense shows
+the typical net worth for your bracket, drawn from the Federal Reserve's
+**Survey of Consumer Finances (2022)**, the most recent published wave.
+
+Two things about that data are worth knowing, because most comparisons get them
+wrong:
+
+- **It is the median, not the mean.** Under 35 the mean is $183,380 and the
+  median is $39,040 — the mean is 4.7× higher because a handful of very large
+  fortunes drag it up, and far more than half of households sit below it. Cense
+  leads with the median and shows the mean only labelled for what it is.
+- **The bands are the ones that exist.** The SCF publishes six: under 35, 35–44,
+  45–54, 55–64, 65–74, 75+. There is no authoritative figure for "the average
+  27-year-old", so Cense does not invent one. A made-up benchmark is worse than
+  no benchmark on a screen people use to judge themselves.
+
+The scale runs from zero to twice the median, so the midpoint is the typical
+household rather than an arbitrary maximum. Figures are per household, not per
+person.
+
+### Where it goes from here
+
+Your net worth today, compounded at a rate you set, plus whatever you add each
+year. It says how much of the end figure is money you put in versus growth.
+
+It is arithmetic, not a forecast: it assumes the same return every single year,
+which no market has ever done. The horizon is thirty years, shortened so it
+never projects past age 100.
+
 ## Debts
 
 A debt has a balance, and optionally an interest rate.

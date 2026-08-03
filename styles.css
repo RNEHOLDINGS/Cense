@@ -168,6 +168,42 @@ body {
   border-color: var(--ink);
 }
 
+/* ---------- net worth comparison ---------- */
+
+/* The scale runs 0 to twice the median, so the midpoint is the typical
+   household rather than an arbitrary maximum. */
+.scale {
+  position: relative;
+  height: 12px;
+  background: var(--grid);
+  border-radius: 6px;
+  margin-top: 12px;
+}
+.scale-median {
+  position: absolute; top: -4px; bottom: -4px;
+  width: 2px;
+  background: var(--ink-2);
+  border-radius: 1px;
+  transform: translateX(-1px);
+}
+.scale-you {
+  position: absolute; top: 50%;
+  width: 15px; height: 15px;
+  border-radius: 50%;
+  border: 2.5px solid var(--surface-1);
+  transform: translate(-50%, -50%);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+.scale-legend {
+  display: flex; justify-content: space-between;
+  font-size: 11.5px; color: var(--ink-muted);
+  margin-top: 9px;
+}
+
+.chart-wrap { width: 100%; }
+.chart-wrap svg { width: 100%; height: 190px; display: block; }
+.chart-tick { font-size: 11px; fill: var(--ink-muted); }
+
 /* ---------- privacy mode ---------- */
 
 /* Text amounts are masked at the formatter, but these are live <input> values
@@ -176,26 +212,37 @@ body {
 .private input[data-field="amount"],
 .private input[data-field="balance"],
 .private input[data-field="target"],
+.private input[data-field="value"],
 .private input[data-plan-amount],
 .private #s-income,
 .private #s-startbalance,
 .private #f-amount,
 .private #d-balance,
-.private #fund-target {
+.private #fund-target,
+.private #a-value,
+.private #s-annualadd,
+.private .chart-wrap {
   filter: blur(6px);
   transition: filter 0.12s ease;
 }
 .private input[data-field="amount"]:focus,
 .private input[data-field="balance"]:focus,
 .private input[data-field="target"]:focus,
+.private input[data-field="value"]:focus,
 .private input[data-plan-amount]:focus,
 .private #s-income:focus,
 .private #s-startbalance:focus,
 .private #f-amount:focus,
 .private #d-balance:focus,
-.private #fund-target:focus {
+.private #fund-target:focus,
+.private #a-value:focus,
+.private #s-annualadd:focus {
   filter: none;
 }
+
+/* The comparison marker's position encodes the number even when the number
+   itself is masked, so it goes too. */
+.private .scale-you { opacity: 0; }
 
 /* The bars encode "how much of the bucket is gone", which is a ratio, not a
    figure — but a full meter beside a masked number still says "you overspent",

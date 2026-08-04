@@ -98,9 +98,14 @@ button — it protects against a glance, not against someone at your keyboard.
 | **Dashboard** | Each bucket's allocation vs. what you actually spent, for one month |
 | **Spending** | The monthly log. Add by hand, or import a bank CSV |
 | **Regulars** | Charges you know are coming. Flip **Auto** on and they post themselves |
-| **Funds** | Money set aside for things that aren't monthly |
-| **Debts** | What you owe, what it costs, and how fast it's going |
-| **Settings** | Income, buckets, carryover, cash-flow, backup and restore |
+| **Toward** | Funds you're filling and debts you're emptying |
+| **Worth** | Everything you own, minus everything you owe |
+| **⚙** | Income, buckets, carryover, cash-flow, backup and restore |
+
+Regulars is *what leaves every month*; Toward is *what it's leaving toward*.
+The **Toward** column in Spending and Regulars tags a charge to a fund or a
+debt, and the tab carries the same word, so following a tag lands somewhere
+with a matching name.
 
 ## Funds
 

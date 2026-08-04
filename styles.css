@@ -162,11 +162,23 @@ body {
   flex: none;
 }
 .theme-toggle:hover, .icon-toggle:hover { background: var(--wash); color: var(--ink); }
-.icon-toggle[aria-pressed="true"] {
+.icon-toggle[aria-pressed="true"],
+.icon-toggle[aria-current="page"] {
   background: var(--ink);
   color: var(--surface-1);
   border-color: var(--ink);
 }
+
+/* Divides the two halves of a merged screen without pretending to be an <h1>. */
+.section-title {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  margin: 30px 0 6px;
+  padding-top: 22px;
+  border-top: 1px solid var(--grid);
+}
+.section-title:first-of-type { margin-top: 6px; padding-top: 0; border-top: 0; }
 
 /* ---------- net worth comparison ---------- */
 
@@ -561,8 +573,18 @@ select.inp option { background: var(--surface-1); color: var(--ink); }
 @media (max-width: 600px) {
   .topbar { padding: 10px 12px; gap: 10px; }
   .view { padding: 18px 12px 50px; }
-  .nav { order: 3; width: 100%; }
-  .nav-btn { flex: 1; text-align: center; padding: 6px 4px; }
+  /* flex-basis, not width. The base rule sets `flex: 1` (basis 0%), which wins
+     over `width: 100%` in the main-axis calculation — so the strip quietly
+     shared a row with the brand and the icons instead of taking its own, and
+     the labels wrapped to four lines. */
+  .nav { order: 3; flex: 0 0 100%; width: 100%; }
+  .nav-btn {
+    flex: 1 1 0;
+    min-width: 0;
+    text-align: center;
+    padding: 6px 2px;
+    font-size: 13px;
+  }
   h1 { font-size: 22px; }
 
   /* Editable tables become stacked cards. Logging a charge is the one thing

@@ -9,7 +9,7 @@
    keeps serving the old version until it happens to revalidate.
    --------------------------------------------------------------- */
 
-var CACHE = 'cense-v3';   /* v3: net worth */
+var CACHE = 'cense-v4';   /* v4: Funds+Debts merged into Toward */
 
 var ASSETS = [
   './',

@@ -345,8 +345,7 @@
         id: reid(d.id), name: str(d.name), balance: num(d.balance),
         /* Payday and some store credit run well past 100%, and those are
            precisely the debts where seeing the number matters most. */
-        apr: Math.min(Math.max(num(d.apr), 0), 1000),
-        minPayment: Math.max(num(d.minPayment), 0)
+        apr: Math.min(Math.max(num(d.apr), 0), 1000)
       };
     });
 
@@ -495,8 +494,8 @@
         { id: 'f-car',  name: 'Car repairs', target: 900, every: 12, dueMonth: 0, bucketId: 'save' }
       ],
       debts: [
-        { id: 'd-card', name: 'Credit card',  balance: 2400,  apr: 22.9, minPayment: 60 },
-        { id: 'd-loan', name: 'Student loan', balance: 14800, apr: 6.1,  minPayment: 140 }
+        { id: 'd-card', name: 'Credit card',  balance: 2400,  apr: 22.9 },
+        { id: 'd-loan', name: 'Student loan', balance: 14800, apr: 6.1 }
       ],
       txns: txns,
       applied: applied,
@@ -1154,7 +1153,10 @@
         '</b> on the ' + flow.lowDay + Ordinal(flow.lowDay) + '.</span></div>';
     }
 
-    var debtTotal = state.debts.reduce(function (a, d) { return a + num(d.balance); }, 0);
+    /* debtNow, not d.balance — the latter is what was owed when you first told
+       Cense about it, so this card used to sit at the opening figure forever
+       while Debts and Net worth both counted down. Three screens, two answers. */
+    var debtTotal = debtsTotal();
 
     return head('Dashboard', monthStepper()) +
       '<p class="sub">' + esc(monthShort(ym)) + ' so far. The honest version.</p>' +
@@ -1324,6 +1326,31 @@
       sections;
   }
 
+  /* ---------- toward: funds and debts ---------- */
+
+  /* One screen, because the app already treats these as one thing: a single
+     Toward control writes both, one hasToward() decides whether either exists,
+     and their balances are the same reduce over txns with a different tag.
+     Regulars is what leaves every month; this is what it is leaving toward. */
+  function viewToward() {
+    var saved = state.funds.reduce(function (a, f) { return a + Math.max(fundBalance(f.id), 0); }, 0);
+    var owed = debtsTotal();
+    var nothingYet = !state.funds.length && !state.debts.length;
+
+    var pills = '<span class="row" style="gap:6px">' +
+      (state.funds.length ? '<span class="pill pill-on">🪺 ' + money0(saved) + ' set aside</span>' : '') +
+      (state.debts.length ? '<span class="pill">' + money0(owed) + ' owed</span>' : '') +
+      '</span>';
+
+    return head('Toward', pills) +
+      '<p class="sub">Funds you are filling and debts you are emptying. Point a regular at any of them in <b>Regulars</b> and it moves on its own.</p>' +
+      (nothingYet
+        ? '<div class="card"><div class="empty">Nothing here yet. A <b>fund</b> is money set aside for something that is not monthly — Christmas, tyres, the insurance renewal. A <b>debt</b> is the other direction.</div></div>'
+        : '') +
+      fundsSection(nothingYet) +
+      debtsSection(nothingYet);
+  }
+
   /* ---------- net worth ---------- */
 
   function viewWorth() {
@@ -1449,8 +1476,13 @@
 
       (byKind.length
         ? '<div class="card"><h2>What it is made of</h2>' +
-          donut(byKind.map(function (r, i) {
-            return { name: r.kind.name, value: r.total, color: slotCss((i % 6) + 1) };
+          /* Slot comes from the kind's fixed position, not the filtered index —
+             otherwise Property changes colour the moment you add a Cash row,
+             which is exactly the cycling the palette rules forbid. */
+          donut(byKind.map(function (r) {
+            var slot = 1;
+            ASSET_KINDS.forEach(function (k, i) { if (k.id === r.kind.id) slot = i + 1; });
+            return { name: r.kind.name, value: r.total, color: slotCss(slot) };
           }), assets, 'in assets') + '</div>'
         : '') +
 
@@ -1476,7 +1508,7 @@
 
   /* ---------- funds ---------- */
 
-  function viewFunds() {
+  function fundsSection(quiet) {
     var monthlyTotal = fundsMonthlyTotal();
     var income = num(state.settings.income);
     var saveBucket = state.buckets.filter(isSaving)[0];
@@ -1490,6 +1522,7 @@
       var short = target - bal;
       var slot = saveBucket ? saveBucket.slot : 4;
 
+      var pledged = fundPledged(f.id);
       var due = f.dueMonth
         ? 'due ' + MONTHS[f.dueMonth - 1]
         : (f.every ? 'whenever it happens' : 'no schedule');
@@ -1544,29 +1577,34 @@
           (monthly > 0
             ? 'Puts <b>' + money(monthly) + '</b> a month aside &middot; ' + esc(due)
             : 'Set a target and a cycle and Cense works out the monthly figure.') +
-          (planForFund(f.id) ? ' &middot; <span class="pos">transfer set up</span>' : '') +
+          (pledged >= monthly - 0.005 && monthly > 0
+            ? ' &middot; <span class="pos">transfer set up</span>'
+            : pledged > 0
+              ? ' &middot; <span class="neg">only ' + money(pledged) + ' of that is set up</span>'
+              : '') +
         '</div>' +
-        (monthly > 0 && !planForFund(f.id) && saveBucket
+        (monthly > 0 && pledged < monthly - 0.005 && saveBucket
           ? '<div class="row" style="margin-top:10px"><button class="btn btn-sm" data-act="fund-plan" data-id="' + fid + '">' +
-            'Set up the ' + money(monthly) + ' monthly transfer</button></div>'
+            (pledged > 0 ? 'Top the transfer up to ' + money(monthly) : 'Set up the ' + money(monthly) + ' monthly transfer') +
+            '</button></div>'
           : '') +
       '</div>';
     }).join('');
 
-    return head('Funds',
-        '<span class="pill' + (monthlyTotal > 0 ? ' pill-on' : '') + '">🪺 ' + money0(monthlyTotal) + ' a month</span>') +
+    return '<h2 class="section-title">Funds</h2>' +
       '<p class="sub">Christmas, the next set of tyres, the insurance renewal. They are not surprises — they are bills you have not started paying yet. Give each one a target and a cycle and Cense spreads it over the months instead of letting it land on one.</p>' +
-      (!saveBucket
+      (!saveBucket && state.funds.length
         ? '<div class="note note-warn"><span>⚠</span><span>No bucket is marked <b>Saving</b>, so there is nowhere for this money to sit. Set one in <b>Settings</b>.</span></div>'
         : '') +
       (state.funds.length
         ? '<div class="note"><span>💡</span><span>Together these need <b>' + money(monthlyTotal) + '</b> a month' +
           (income > 0 ? ' — ' + Math.round((monthlyTotal / income) * 100) + '% of your income' : '') +
           '. Spend out of a fund by tagging the charge to it in <b>Spending</b>.</span></div>'
-        : '<div class="empty">No funds yet. The two most people need first are Christmas and car repairs.</div>') +
+        : '') +
       cards +
       '<div class="card">' +
-        '<h2>New fund</h2>' +
+        '<h2>' + (state.funds.length ? 'New fund' : 'Start a fund') + '</h2>' +
+        (quiet ? '<p class="sub" style="margin-bottom:12px">Most people need Christmas and car repairs before anything else.</p>' : '') +
         '<div class="row">' +
           '<input class="inp bordered" id="fund-name" placeholder="e.g. Christmas" style="flex:2;min-width:150px">' +
           '<input class="inp num bordered" id="fund-target" placeholder="Target" inputmode="decimal" style="width:120px">' +
@@ -1580,9 +1618,18 @@
     return state.plan.filter(function (p) { return p.fundId === fundId; })[0] || null;
   }
 
+  /* What the plan actually sends this fund each month. Checking merely that a
+     regular exists let a $5 transfer against a $70.83 target report itself as
+     handled — the debts side has summed the plan properly all along. */
+  function fundPledged(fundId) {
+    return state.plan.reduce(function (a, p) {
+      return p.fundId === fundId ? a + num(p.amount) : a;
+    }, 0);
+  }
+
   /* ---------- debts ---------- */
 
-  function viewDebts() {
+  function debtsSection(quiet) {
     var total = state.debts.reduce(function (a, d) { return a + debtNow(d); }, 0);
     var opening = state.debts.reduce(function (a, d) { return a + num(d.balance); }, 0);
     var paidAll = opening - total;
@@ -1613,9 +1660,15 @@
           'and the interest costs you <b class="neg">' + money(proj.interest) + '</b> on the way.';
       }
 
+      /* Privacy mode: the payoff sentence never prints a balance, but the rate,
+         the term and the literal "$50" in the nudge are three knowns against
+         two unknowns — the balance and the payment both fall out with a bit of
+         algebra. So the whole projection goes behind the mask with them. */
+      if (hideMoney) verdict = 'Payoff details hidden.';
+
       /* What one more useful step would buy. */
       var nudge = '';
-      if (!gone && apr > 0 && monthly > 0 && proj) {
+      if (!hideMoney && !gone && apr > 0 && monthly > 0 && proj) {
         var faster = payoff(now, apr, monthly + 50);
         if (faster && faster.interest < proj.interest - 1) {
           nudge = '<div class="hint" style="margin-top:6px">Another <b>$50</b> a month clears it ' +
@@ -1650,16 +1703,15 @@
       '</div>';
     }).join('');
 
-    return head('Debts',
-        state.debts.length ? '<span class="pill">' + money0(total) + ' outstanding</span>' : '') +
+    return '<h2 class="section-title">Debts</h2>' +
       '<p class="sub">The number that does not go away on its own — except now it does, when you point money at it. Add the interest rate and Cense will tell you what waiting costs.</p>' +
       (paidAll > 0
-        ? '<div class="note"><span>📉</span><span>You have paid off <b>' + money(paidAll) + '</b> since you started tracking. ' +
-          money(total) + ' to go.</span></div>'
+        ? '<div class="note"><span>📉</span><span>You have paid off <b>' + money(paidAll) + '</b> since you started tracking.</span></div>'
         : '') +
-      (state.debts.length ? cards : '<div class="card"><div class="empty">Nothing owed. Show-off.</div></div>') +
+      (state.debts.length ? cards : '') +
       '<div class="card">' +
-        '<h2>Add a debt</h2>' +
+        '<h2>' + (state.debts.length ? 'Add a debt' : 'Add a debt — or do not') + '</h2>' +
+        (quiet ? '<p class="sub" style="margin-bottom:12px">Nothing owed? Leave this empty. Show-off.</p>' : '') +
         '<div class="row">' +
           '<input class="inp bordered" id="d-name" placeholder="e.g. Student loans" style="flex:2;min-width:160px">' +
           '<input class="inp num bordered" id="d-balance" placeholder="0.00" inputmode="decimal" style="width:140px">' +
@@ -2177,8 +2229,7 @@
       state.debts.push({
         id: uid(), name: dn,
         balance: num(document.getElementById('d-balance').value),
-        apr: num(document.getElementById('d-apr').value),
-        minPayment: 0
+        apr: num(document.getElementById('d-apr').value)
       });
       commit();
     } else if (act === 'add-asset') {
@@ -2471,16 +2522,17 @@
     viewEl.innerHTML = demoBanner() + alarmBanners() + undoBanner() + postBanner() + (
       ui.view === 'transactions' ? viewTransactions() :
       ui.view === 'regulars' ? viewRegulars() :
-      ui.view === 'funds' ? viewFunds() :
+      ui.view === 'toward' ? viewToward() :
       ui.view === 'worth' ? viewWorth() :
-      ui.view === 'debts' ? viewDebts() :
       ui.view === 'settings' ? viewSettings() :
       viewDashboard()
     );
 
     restoreFocus(hold);
 
-    [].forEach.call(document.querySelectorAll('.nav-btn'), function (b) {
+    /* Every [data-view] control, not just .nav-btn — Settings lives in the top
+       bar as an icon now and still needs to show as the current page. */
+    [].forEach.call(document.querySelectorAll('[data-view]'), function (b) {
       if (b.getAttribute('data-view') === ui.view) b.setAttribute('aria-current', 'page');
       else b.removeAttribute('aria-current');
     });
@@ -2546,8 +2598,10 @@
 
   /* ---------- boot ---------- */
 
-  document.getElementById('nav').addEventListener('click', function (e) {
-    var b = e.target.closest('.nav-btn');
+  /* Bound to the whole bar rather than the nav strip, so the Settings gear
+     sitting outside the strip routes through the same handler. */
+  document.querySelector('.topbar').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-view]');
     if (!b) return;
     ui.view = b.getAttribute('data-view');
     render();

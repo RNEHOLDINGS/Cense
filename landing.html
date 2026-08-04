@@ -54,12 +54,12 @@
     margin: 0 auto 28px;
   }
   .hero-cta { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-  .btn-lg { padding: 12px 26px; font-size: 16px; border-radius: 12px; }
-  .hero-fine { font-size: 13px; color: var(--ink-muted); margin-top: 16px; }
+  .btn-lg { padding: 12px 26px; font-size: var(--t-body); border-radius: var(--r-md); }
+  .hero-fine { font-size: var(--t-small); color: var(--ink-muted); margin-top: 16px; }
 
   .kicker {
     display: inline-block;
-    font-size: 12px; font-weight: 700; letter-spacing: 0.09em;
+    font-size: var(--t-micro); font-weight: 700; letter-spacing: 0.09em;
     text-transform: uppercase; color: var(--ink-muted);
     margin-bottom: 12px;
   }
@@ -67,7 +67,7 @@
   /* the star of the show */
   .bs-band {
     border: 1px solid var(--border);
-    border-radius: 22px;
+    border-radius: var(--r-lg);
     background: var(--surface-1);
     padding: 44px 36px;
     margin: 20px 0 64px;
@@ -78,11 +78,11 @@
     letter-spacing: -0.03em;
     margin: 0 0 14px;
   }
-  .bs-band p { color: var(--ink-2); max-width: 58ch; margin: 0 auto; font-size: 16px; }
+  .bs-band p { color: var(--ink-2); max-width: 58ch; margin: 0 auto; font-size: var(--t-body); }
   .bs-chips { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 26px; }
   .chip {
-    border: 1px solid var(--border); border-radius: 999px;
-    padding: 6px 15px; font-size: 13.5px; font-weight: 600;
+    border: 1px solid var(--border); border-radius: var(--r-pill);
+    padding: 6px 15px; font-size: var(--t-small); font-weight: 600;
     display: inline-flex; align-items: center; gap: 8px;
     background: var(--plane);
   }
@@ -92,32 +92,32 @@
     font-size: clamp(22px, 3vw, 29px);
     letter-spacing: -0.03em; margin: 0 0 10px;
   }
-  .section > .blurb { color: var(--ink-2); max-width: 56ch; margin: 0 0 26px; font-size: 15.5px; }
+  .section > .blurb { color: var(--ink-2); max-width: 56ch; margin: 0 0 26px; font-size: var(--t-body); }
 
   .features { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(238px, 1fr)); }
   .feature {
-    border: 1px solid var(--border); border-radius: 16px;
+    border: 1px solid var(--border); border-radius: var(--r-lg);
     background: var(--surface-1); padding: 22px;
   }
-  .feature .ic { font-size: 22px; line-height: 1; margin-bottom: 12px; }
-  .feature h3 { margin: 0 0 7px; font-size: 16px; letter-spacing: -0.015em; }
-  .feature p { margin: 0; font-size: 14px; color: var(--ink-2); line-height: 1.5; }
+  .feature .ic { font-size: var(--t-title); line-height: 1; margin-bottom: 12px; }
+  .feature h3 { margin: 0 0 7px; font-size: var(--t-body); letter-spacing: -0.015em; }
+  .feature p { margin: 0; font-size: var(--t-body); color: var(--ink-2); line-height: 1.5; }
 
   .steps { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(238px, 1fr)); counter-reset: s; }
   .step { border-left: 2px solid var(--grid); padding: 4px 0 4px 18px; counter-increment: s; }
   .step::before {
     content: counter(s);
     display: grid; place-items: center;
-    width: 25px; height: 25px; border-radius: 8px;
+    width: 25px; height: 25px; border-radius: var(--r-sm);
     background: var(--ink); color: var(--surface-1);
-    font-size: 13px; font-weight: 700; margin-bottom: 10px;
+    font-size: var(--t-small); font-weight: 700; margin-bottom: 10px;
   }
-  .step h3 { margin: 0 0 6px; font-size: 15.5px; }
-  .step p { margin: 0; font-size: 14px; color: var(--ink-2); }
+  .step h3 { margin: 0 0 6px; font-size: var(--t-body); }
+  .step p { margin: 0; font-size: var(--t-body); color: var(--ink-2); }
 
   .closer {
     text-align: center;
-    border: 1px solid var(--border); border-radius: 22px;
+    border: 1px solid var(--border); border-radius: var(--r-lg);
     background: var(--surface-1);
     padding: 52px 30px; margin-bottom: 56px;
   }
@@ -125,7 +125,7 @@
   .closer p { color: var(--ink-2); max-width: 48ch; margin: 0 auto 24px; }
 
   .honest {
-    font-size: 13.5px; color: var(--ink-muted);
+    font-size: var(--t-small); color: var(--ink-muted);
     border-top: 1px solid var(--border);
     padding-top: 22px; margin-bottom: 50px;
     max-width: 62ch;
@@ -175,7 +175,7 @@
       <span class="chip"><span class="swatch" style="background:var(--series-3)"></span>Bullshit</span>
       <span class="chip"><span class="swatch" style="background:var(--series-4)"></span>Savings</span>
     </div>
-    <p style="margin-top:20px;font-size:14px;color:var(--ink-muted)">
+    <p style="margin-top:24px;font-size:var(--t-small);color:var(--ink-muted)">
       Not your language? Rename any bucket in Settings. We won't be offended.
     </p>
   </section>

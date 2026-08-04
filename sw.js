@@ -9,7 +9,7 @@
    keeps serving the old version until it happens to revalidate.
    --------------------------------------------------------------- */
 
-var CACHE = 'cense-v7';   /* v7: self-hosted typefaces */
+var CACHE = 'cense-v8';   /* v8: type and radius scale */
 
 var ASSETS = [
   './',

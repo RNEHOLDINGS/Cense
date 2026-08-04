@@ -61,9 +61,29 @@
   --warning:  #fab219;
   --critical: #d03b3b;
 
-  --radius: 14px;
   --font: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-num: "Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+
+  /* ---------- scale ----------
+     Six type sizes, four radii. What was here before was nineteen sizes and
+     sixteen radii — each defensible alone, collectively arbitrary, which is
+     what a machine picking a plausible number every time it needs one looks
+     like. Values live here so a new component has to choose from the set
+     rather than invent another 13.5px. */
+  --t-micro: 11px;   /* table headers, chart ticks, legends */
+  --t-small: 13px;   /* hints, secondary lines, notes */
+  --t-body:  15px;   /* body copy and every control */
+  --t-lead:  18px;   /* section titles, modal titles */
+  --t-title: 22px;   /* view headings */
+  --t-hero:  27px;   /* headline figures */
+  --t-display: 34px; /* the single lead figure on a screen, and nothing else */
+
+  --r-sm:   8px;     /* inputs, buttons, small controls */
+  --r-md:   12px;    /* cards, tiles, notes, banners */
+  --r-lg:   20px;    /* modals and full-width panels */
+  --r-pill: 999px;   /* pills, meters, swatches — round by intent, not by number */
+
+  --radius: var(--r-md);
 
   /* Styles the native checkbox in Settings, which was otherwise the raw OS
      control sitting in the middle of a designed page. */
@@ -166,7 +186,7 @@ body {
   background: var(--plane);
   color: var(--ink);
   font-family: var(--font);
-  font-size: 15px;
+  font-size: var(--t-body);
   line-height: 1.45;
   -webkit-font-smoothing: antialiased;
   display: flex;
@@ -182,15 +202,15 @@ body {
   letter-spacing: -0.03em;
 }
 .brand-mark {
-  width: 26px; height: 26px; border-radius: 9px;
+  width: 26px; height: 26px; border-radius: var(--r-sm);
   background: linear-gradient(140deg, var(--series-1), var(--series-2));
   color: #fff;
   display: grid; place-items: center;
-  font-size: 15px; font-weight: 700;
+  font-size: var(--t-body); font-weight: 700;
   transform: rotate(-6deg);
   box-shadow: 0 2px 7px rgba(42, 120, 214, 0.32);
 }
-.brand-name { font-size: 18px; }
+.brand-name { font-size: var(--t-lead); }
 .brand:hover .brand-mark { transform: rotate(6deg); }
 .brand-mark { transition: transform 0.18s ease; }
 
@@ -217,10 +237,10 @@ body {
   background: transparent;
   color: var(--ink-2);
   font: inherit;
-  font-size: 14px;
+  font-size: var(--t-body);
   font-weight: 500;
   padding: 6px 13px;
-  border-radius: 9px;
+  border-radius: var(--r-sm);
   cursor: pointer;
 }
 .nav-btn:hover { background: var(--wash); color: var(--ink); }
@@ -232,9 +252,9 @@ body {
   background: transparent;
   color: var(--ink-2);
   width: 32px; height: 32px;
-  border-radius: 10px;
+  border-radius: var(--r-sm);
   cursor: pointer;
-  font-size: 15px;
+  font-size: var(--t-body);
   line-height: 1;
   display: grid;
   place-items: center;
@@ -250,7 +270,7 @@ body {
 
 /* Divides the two halves of a merged screen without pretending to be an <h1>. */
 .section-title {
-  font-size: 19px;
+  font-size: var(--t-lead);
   font-weight: 700;
   letter-spacing: -0.025em;
   margin: 30px 0 6px;
@@ -267,7 +287,7 @@ body {
   position: relative;
   height: 12px;
   background: var(--grid);
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   margin-top: 12px;
 }
 .scale-median {
@@ -287,13 +307,13 @@ body {
 }
 .scale-legend {
   display: flex; justify-content: space-between;
-  font-size: 11.5px; color: var(--ink-muted);
+  font-size: var(--t-micro); color: var(--ink-muted);
   margin-top: 9px;
 }
 
 .chart-wrap { width: 100%; }
 .chart-wrap svg { width: 100%; height: 190px; display: block; }
-.chart-tick { font-size: 11px; fill: var(--ink-muted); }
+.chart-tick { font-size: var(--t-micro); fill: var(--ink-muted); }
 
 /* ---------- privacy mode ---------- */
 
@@ -352,9 +372,9 @@ body {
   margin-bottom: 8px;
   flex-wrap: wrap;
 }
-h1 { font-size: 25px; margin: 0; letter-spacing: -0.03em; font-weight: 700; }
-h2 { font-size: 15px; margin: 0 0 12px; letter-spacing: -0.015em; font-weight: 600; }
-.sub { color: var(--ink-2); font-size: 14px; margin: 0 0 20px; max-width: 62ch; }
+h1 { font-size: var(--t-hero); margin: 0; letter-spacing: -0.03em; font-weight: 700; }
+h2 { font-size: var(--t-body); margin: 0 0 12px; letter-spacing: -0.015em; font-weight: 600; }
+.sub { color: var(--ink-2); font-size: var(--t-body); margin: 0 0 20px; max-width: 62ch; }
 
 .card {
   background: var(--surface-1);
@@ -377,7 +397,7 @@ h2 { font-size: 15px; margin: 0 0 12px; letter-spacing: -0.015em; font-weight: 6
   padding: 15px 17px;
 }
 .tile-label {
-  font-size: 12px;
+  font-size: var(--t-micro);
   color: var(--ink-2);
   text-transform: uppercase;
   letter-spacing: 0.06em;
@@ -387,15 +407,21 @@ h2 { font-size: 15px; margin: 0 0 12px; letter-spacing: -0.015em; font-weight: 6
    numbers shift width as they change while the small ones below them, which
    have always been tabular, hold still. */
 .tile-value {
-  font-size: 27px;
+  font-size: var(--t-hero);
   font-weight: 600;   /* the only weight of Plex Mono that ships; 700 fakes it */
   letter-spacing: -0.03em;
   margin-top: 5px;
   font-variant-numeric: tabular-nums lining-nums;
 }
-.tile-note { font-size: 12.5px; color: var(--ink-muted); margin-top: 3px; }
+.tile-note { font-size: var(--t-small); color: var(--ink-muted); margin-top: 3px; }
 
-.swatch { width: 10px; height: 10px; border-radius: 3px; flex: none; }
+/* Exactly one of these per screen. Hierarchy comes from difference, and with
+   every tile weighted the same there was none to spend. */
+.tile-lead { border-color: var(--ink); }
+.tile-lead .tile-label { color: var(--ink); }
+.tile-lead .tile-value { font-size: var(--t-display); }
+
+.swatch { width: 10px; height: 10px; border-radius: var(--r-pill); flex: none; }
 
 .pos { color: var(--good-ink); }
 .neg { color: var(--critical); }
@@ -409,26 +435,26 @@ h2 { font-size: 15px; margin: 0 0 12px; letter-spacing: -0.015em; font-weight: 6
   justify-content: space-between; flex-wrap: wrap;
 }
 .bucket-name { display: flex; align-items: center; gap: 8px; font-weight: 600; }
-.bucket-nums { font-size: 13.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.bucket-nums { font-size: var(--t-small); color: var(--ink-2); font-variant-numeric: tabular-nums; }
 
 .meter {
   position: relative;
   height: 9px;
   background: var(--grid);
-  border-radius: 5px;
+  border-radius: var(--r-pill);
   margin-top: 9px;
   overflow: hidden;
 }
-.meter-fill { position: absolute; inset: 0 auto 0 0; border-radius: 5px; }
+.meter-fill { position: absolute; inset: 0 auto 0 0; border-radius: var(--r-pill); }
 
 /* ---------- tables ---------- */
 
 .table-wrap { overflow-x: auto; }
 
-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+table { width: 100%; border-collapse: collapse; font-size: var(--t-body); }
 th {
   text-align: left;
-  font-size: 11.5px;
+  font-size: var(--t-micro);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--ink-muted);
@@ -450,7 +476,7 @@ input, select, textarea, button { font: inherit; color: inherit; }
   appearance: none;
   background: transparent;
   border: 1px solid transparent;
-  border-radius: 8px;
+  border-radius: var(--r-sm);
   padding: 5px 8px;
   width: 100%;
   min-width: 0;
@@ -466,7 +492,7 @@ select.inp option { background: var(--surface-1); color: var(--ink); }
 .field { display: block; margin-bottom: 12px; }
 .field > span {
   display: block;
-  font-size: 12px;
+  font-size: var(--t-micro);
   color: var(--ink-2);
   font-weight: 600;
   margin-bottom: 4px;
@@ -478,9 +504,9 @@ select.inp option { background: var(--surface-1); color: var(--ink); }
   appearance: none;
   border: 1px solid var(--border);
   background: var(--surface-1);
-  border-radius: 9px;
+  border-radius: var(--r-sm);
   padding: 6px 14px;
-  font-size: 14px;
+  font-size: var(--t-body);
   font-weight: 500;
   cursor: pointer;
   white-space: nowrap;
@@ -498,10 +524,10 @@ select.inp option { background: var(--surface-1); color: var(--ink); }
 .btn-primary { background: var(--ink); color: var(--surface-1); border-color: var(--ink); font-weight: 600; }
 .btn-primary:hover { opacity: 0.86; background: var(--ink); }
 .btn-danger { color: var(--critical); }
-.btn-sm { padding: 3px 10px; font-size: 13px; }
+.btn-sm { padding: 3px 10px; font-size: var(--t-small); }
 .btn-icon {
   border: 0; background: transparent; color: var(--ink-muted);
-  cursor: pointer; padding: 4px 7px; border-radius: 7px; line-height: 1;
+  cursor: pointer; padding: 4px 7px; border-radius: var(--r-sm); line-height: 1;
 }
 .btn-icon:hover { background: var(--wash); color: var(--critical); }
 
@@ -514,9 +540,9 @@ select.inp option { background: var(--surface-1); color: var(--ink); }
   border: 1px solid var(--border);
   background: var(--surface-1);
   color: var(--ink-2);
-  border-radius: 8px;
+  border-radius: var(--r-sm);
   width: 30px; height: 30px;
-  font-size: 13px; line-height: 1;
+  font-size: var(--t-small); line-height: 1;
   cursor: pointer;
   flex: none;
 }
@@ -531,7 +557,7 @@ select.inp option { background: var(--surface-1); color: var(--ink); }
 .switch { display: inline-flex; align-items: center; cursor: pointer; }
 .switch input { position: absolute; opacity: 0; width: 0; height: 0; }
 .switch-track {
-  width: 38px; height: 22px; border-radius: 11px;
+  width: 38px; height: 22px; border-radius: var(--r-md);
   background: var(--grid); position: relative;
   transition: background 0.15s ease;
   flex: none;
@@ -550,15 +576,15 @@ select.inp option { background: var(--surface-1); color: var(--ink); }
 /* ---------- month stepper ---------- */
 
 .stepper { display: flex; align-items: center; gap: 4px; }
-.stepper .label { min-width: 134px; text-align: center; font-weight: 600; font-size: 14px; }
+.stepper .label { min-width: 134px; text-align: center; font-weight: 600; font-size: var(--t-body); }
 
 /* ---------- donut ---------- */
 
 .donut-wrap { display: flex; gap: 22px; align-items: center; flex-wrap: wrap; }
-.donut-center-1 { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums lining-nums; }
-.donut-center-2 { font-size: 11px; fill: var(--ink-muted); }
+.donut-center-1 { font-size: var(--t-title); font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums lining-nums; }
+.donut-center-2 { font-size: var(--t-micro); fill: var(--ink-muted); }
 .legend { display: grid; gap: 7px; flex: 1; min-width: 180px; }
-.legend-item { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--ink-2); }
+.legend-item { display: flex; align-items: center; gap: 8px; font-size: var(--t-small); color: var(--ink-2); }
 .legend-item b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
 
 /* ---------- notes, banners, misc ---------- */
@@ -567,14 +593,14 @@ select.inp option { background: var(--surface-1); color: var(--ink); }
   text-align: center;
   padding: 34px 16px;
   color: var(--ink-muted);
-  font-size: 14px;
+  font-size: var(--t-body);
 }
 
 .note {
   display: flex; gap: 9px;
-  font-size: 13.5px;
+  font-size: var(--t-small);
   padding: 11px 14px;
-  border-radius: 11px;
+  border-radius: var(--r-md);
   border: 1px solid var(--border);
   background: var(--wash);
   margin-bottom: 14px;
@@ -584,9 +610,9 @@ select.inp option { background: var(--surface-1); color: var(--ink); }
 
 .banner {
   display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
-  font-size: 13.5px;
+  font-size: var(--t-small);
   padding: 11px 14px;
-  border-radius: 11px;
+  border-radius: var(--r-md);
   border: 1px solid var(--series-4);
   background: var(--wash);
   margin-bottom: 14px;
@@ -600,20 +626,20 @@ select.inp option { background: var(--surface-1); color: var(--ink); }
 }
 
 .invite { border-color: var(--series-1); }
-.invite h2 { font-size: 17px; }
+.invite h2 { font-size: var(--t-lead); }
 .invite .sub { margin-bottom: 14px; }
 
 .pill {
   display: inline-flex; align-items: center; gap: 6px;
-  font-size: 12px; font-weight: 600;
-  padding: 3px 10px; border-radius: 20px;
+  font-size: var(--t-micro); font-weight: 600;
+  padding: 3px 10px; border-radius: var(--r-pill);
   border: 1px solid var(--border);
   color: var(--ink-2);
 }
 .pill-on { border-color: var(--series-4); color: var(--good-ink); }
 
-.hint { font-size: 12.5px; color: var(--ink-muted); }
-.bucket-blurb { font-size: 13px; color: var(--ink-muted); font-style: italic; }
+.hint { font-size: var(--t-small); color: var(--ink-muted); }
+.bucket-blurb { font-size: var(--t-small); color: var(--ink-muted); font-style: italic; }
 
 /* ---------- footer ---------- */
 
@@ -624,14 +650,14 @@ select.inp option { background: var(--surface-1); color: var(--ink); }
   border-top: 1px solid var(--border);
   background: var(--surface-1);
   color: var(--ink-muted);
-  font-size: 13px;
+  font-size: var(--t-small);
 }
 .footer b { color: var(--ink-2); font-weight: 600; }
 .footer-mark {
-  width: 18px; height: 18px; border-radius: 6px;
+  width: 18px; height: 18px; border-radius: var(--r-sm);
   background: linear-gradient(140deg, var(--series-1), var(--series-2));
   color: #fff; display: grid; place-items: center;
-  font-size: 11px; font-weight: 700;
+  font-size: var(--t-micro); font-weight: 700;
 }
 .footer-dot { opacity: 0.5; }
 .footer-rne { letter-spacing: 0.02em; }
@@ -648,21 +674,21 @@ select.inp option { background: var(--surface-1); color: var(--ink); }
 .modal {
   background: var(--surface-1);
   border: 1px solid var(--border);
-  border-radius: 16px;
+  border-radius: var(--r-lg);
   width: 100%;
   max-width: 720px;
   max-height: 86vh;
   overflow-y: auto;
   padding: 24px;
 }
-.modal h2 { font-size: 18px; }
+.modal h2 { font-size: var(--t-lead); }
 
 /* ---------- toast ---------- */
 
 .toast {
   position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%);
   background: var(--ink); color: var(--surface-1);
-  padding: 10px 18px; border-radius: 10px; font-size: 14px; font-weight: 500;
+  padding: 10px 18px; border-radius: var(--r-sm); font-size: var(--t-body); font-weight: 500;
   z-index: 60; box-shadow: 0 4px 18px rgba(0, 0, 0, 0.22);
 }
 .toast[hidden] { display: none; }
@@ -680,9 +706,9 @@ select.inp option { background: var(--surface-1); color: var(--ink); }
     min-width: 0;
     text-align: center;
     padding: 6px 2px;
-    font-size: 13px;
+    font-size: var(--t-small);
   }
-  h1 { font-size: 22px; }
+  h1 { font-size: var(--t-title); }
 
   /* Editable tables become stacked cards. Logging a charge is the one thing
      people do on a phone, and it was behind a horizontal scrollbar — six or
@@ -706,7 +732,7 @@ select.inp option { background: var(--surface-1); color: var(--ink); }
 
   .stack tr {
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: var(--r-md);
     background: var(--plane);
     padding: 9px 11px;
     margin-bottom: 10px;
@@ -726,7 +752,7 @@ select.inp option { background: var(--surface-1); color: var(--ink); }
   .stack td[data-label]::before {
     content: attr(data-label);
     flex: 0 0 74px;
-    font-size: 10.5px;
+    font-size: var(--t-micro);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.05em;
@@ -751,29 +777,29 @@ select.inp option { background: var(--surface-1); color: var(--ink); }
      absurd when you are scanning fifty. Closed, a row is a single line with
      the two fields that get edited most still live; open, it is the full
      card. Only Spending does this — it is the only screen with the volume. */
-  .stack tr:not(.open) {
+  .stack.collapsible tr:not(.open) {
     display: flex;
     align-items: center;
     gap: 8px;
     padding: 6px 8px 6px 11px;
     margin-bottom: 7px;
   }
-  .stack tr:not(.open) td { padding: 0; margin: 0; }
-  .stack tr:not(.open) td::before { display: none; }
+  .stack.collapsible tr:not(.open) td { padding: 0; margin: 0; }
+  .stack.collapsible tr:not(.open) td::before { display: none; }
 
-  .stack tr:not(.open) td[data-label="Date"],
-  .stack tr:not(.open) td[data-label="Bucket"],
-  .stack tr:not(.open) td[data-label="Note"],
-  .stack tr:not(.open) td[data-label="Toward"] { display: none; }
+  .stack.collapsible tr:not(.open) td[data-label="Date"],
+  .stack.collapsible tr:not(.open) td[data-label="Bucket"],
+  .stack.collapsible tr:not(.open) td[data-label="Note"],
+  .stack.collapsible tr:not(.open) td[data-label="Toward"] { display: none; }
 
-  .stack tr:not(.open) td[data-label="Charge"] { flex: 1 1 auto; min-width: 0; }
-  .stack tr:not(.open) td[data-label="Amount"] { flex: 0 0 88px; }
-  .stack tr:not(.open) td[data-label="Amount"] .inp { text-align: right; }
-  .stack tr:not(.open) .td-act { flex: 0 0 auto; }
-  .stack tr:not(.open) .td-act .btn-icon { display: none; }   /* delete needs the row open */
+  .stack.collapsible tr:not(.open) td[data-label="Charge"] { flex: 1 1 auto; min-width: 0; }
+  .stack.collapsible tr:not(.open) td[data-label="Amount"] { flex: 0 0 88px; }
+  .stack.collapsible tr:not(.open) td[data-label="Amount"] .inp { text-align: right; }
+  .stack.collapsible tr:not(.open) .td-act { flex: 0 0 auto; }
+  .stack.collapsible tr:not(.open) .td-act .btn-icon { display: none; }   /* delete needs the row open */
 
   .btn-more { display: inline-grid; }
-  .stack tr.open .td-act { gap: 4px; }
+  .stack.collapsible tr.open .td-act { gap: 4px; }
 
   .stack tfoot tr { background: transparent; border: 0; padding: 0 11px; }
   .stack tfoot td { font-weight: 700; }
@@ -782,7 +808,7 @@ select.inp option { background: var(--surface-1); color: var(--ink); }
 
   /* Stat tiles stop being four cramped columns. */
   .grid-4 { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
-  .tile-value { font-size: 23px; }
+  .tile-value { font-size: var(--t-title); }
 
   .modal { padding: 18px; max-height: 90vh; }
 }

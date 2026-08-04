@@ -940,8 +940,8 @@
     return '<div class="view-head"><h1>' + esc(title) + '</h1>' + (right || '') + '</div>';
   }
 
-  function tile(label, value, note, cls) {
-    return '<div class="tile">' +
+  function tile(label, value, note, cls, lead) {
+    return '<div class="tile' + (lead ? ' tile-lead' : '') + '">' +
       '<div class="tile-label">' + esc(label) + '</div>' +
       '<div class="tile-value ' + (cls || '') + '">' + value + '</div>' +
       '<div class="tile-note">' + esc(note) + '</div>' +
@@ -1117,10 +1117,13 @@
       tile('Money in', money0(income), 'every month') +
       tile('Money out', money0(split.consumed), monthShort(ym) + ' — spent, not saved') +
       tile('Saved', money0(split.saved), savedPct, split.saved > 0 ? 'pos' : '') +
+      /* The one thing on this screen allowed to be big. Four tiles of equal
+         weight give the eye nowhere to land, and this is the one people came
+         to the dashboard to read. */
       tile(left >= 0 ? 'Still yours' : 'In the hole',
            money0(Math.abs(left)),
            left >= 0 ? 'not yet spoken for' : 'past the line',
-           left >= 0 ? 'pos' : 'neg');
+           left >= 0 ? 'pos' : 'neg', true);
 
     var buckets = state.buckets.map(function (b) {
       var base = allocated(b);
@@ -1238,7 +1241,10 @@
     }).join('');
 
     var table = rows.length
-      ? '<div class="table-wrap"><table class="stack">' +
+      /* `collapsible` is Spending only. Regulars and Settings use the same
+         stacked-card treatment but must never collapse — they have no expand
+         toggle, so a collapsed row there is simply a row you cannot reach. */
+      ? '<div class="table-wrap"><table class="stack collapsible">' +
           '<thead><tr><th>Date</th><th>Charge</th><th class="num">Amount</th><th>Bucket</th><th>Note</th>' +
             (toward ? '<th>Toward</th>' : '') + '<th></th></tr></thead>' +
           '<tbody>' + body + '</tbody>' +
@@ -1467,7 +1473,7 @@
         tile('Owed', money0(owed), plural(state.debts.length, 'debt', 'debts')) +
         tile(worth >= 0 ? 'Net worth' : 'Underwater', money0(Math.abs(worth)),
              worth >= 0 ? 'what is actually yours' : 'owed beyond what you own',
-             worth >= 0 ? 'pos' : 'neg') +
+             worth >= 0 ? 'pos' : 'neg', true) +
       '</div>' +
 
       compare +

@@ -229,7 +229,7 @@
   /* openRows lives in ui rather than on the DOM node, because every edit
      re-renders the whole view and a class set on the old <tr> would not
      survive it. */
-  var ui = { view: 'dashboard', month: currentYM(), search: '', lastPost: null, openRows: {} };
+  var ui = { view: 'dashboard', month: currentYM(), search: '', lastPost: null, openRows: {}, undos: [] };
 
   function load() {
     var raw = null;
@@ -526,7 +526,7 @@
     ui.view = 'dashboard';
     ui.openRows = {};
     ui.lastPost = null;
-    ui.undo = null;
+    ui.undos = [];
     commit();
   }
 
@@ -547,7 +547,7 @@
     ui.view = 'dashboard';
     ui.openRows = {};
     ui.lastPost = null;
-    ui.undo = null;
+    ui.undos = [];
     commit();
     toast(real ? 'Demo cleared — your own numbers are back.' : 'Demo cleared. This is your budget now.');
   }
@@ -1010,12 +1010,27 @@
   /* Deleting a row used to be one unconfirmed click next to an editable field.
      An undo bar beats a confirm dialog here: the common case stays one click,
      and the mistake is recoverable rather than merely slower. */
-  function stashUndo(label, fn) { ui.undo = { label: label, fn: fn }; }
+  /* A stack, not a slot. Deleting a fund and then a debt used to discard the
+     first undo silently — and now that both live on one screen, doing exactly
+     that is easy.
+
+     Last in, first out is not a preference here, it is required: each undo
+     closes over the array index its row came from, so they only splice back
+     correctly if unwound in the reverse of the order they were made. */
+  var UNDO_MAX = 12;
+
+  function stashUndo(label, fn) {
+    ui.undos.push({ label: label, fn: fn });
+    while (ui.undos.length > UNDO_MAX) ui.undos.shift();
+  }
 
   function undoBanner() {
-    if (!ui.undo) return '';
+    var n = ui.undos.length;
+    if (!n) return '';
+    var top = ui.undos[n - 1];
     return '<div class="banner">' +
-      '<span>🗑</span><span>' + esc(ui.undo.label) + '</span>' +
+      '<span>🗑</span><span>' + esc(top.label) + '</span>' +
+      (n > 1 ? '<span class="hint">' + (n - 1) + ' more can be undone</span>' : '') +
       '<span class="spacer"></span>' +
       '<button class="btn btn-sm" data-act="undo-delete">Undo</button>' +
       '<button class="btn-icon" data-act="dismiss-undo" aria-label="Dismiss" title="Dismiss">✕</button>' +
@@ -2200,9 +2215,14 @@
       else ui.openRows[id] = 1;
       render();
     } else if (act === 'undo-delete') {
-      if (ui.undo) { ui.undo.fn(); ui.undo = null; commit(); toast('Put it back.'); }
+      if (ui.undos.length) {
+        var step = ui.undos.pop();
+        step.fn();
+        commit();
+        toast('Put it back.' + (ui.undos.length ? ' ' + ui.undos.length + ' left.' : ''));
+      }
     } else if (act === 'dismiss-undo') {
-      ui.undo = null;
+      ui.undos = [];
       render();
     } else if (act === 'undo-post') {
       if (ui.lastPost) undoPost(ui.lastPost);

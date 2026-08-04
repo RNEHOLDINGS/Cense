@@ -262,7 +262,9 @@ counts rather than just matches, so if you really did buy the same coffee twice
 on the same day, the second one still comes in.
 
 Anything deleted by hand can be put back from the **Undo** bar, which sticks
-around until you dismiss it rather than vanishing with a toast.
+around until you dismiss it rather than vanishing with a toast. Deletions stack
+up to a dozen deep and unwind most-recent-first, so clearing out a few rows and
+then changing your mind about the second one still works.
 
 ## Sharing it
 

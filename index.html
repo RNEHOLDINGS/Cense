@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Cense — know where it went</title>
 <meta name="description" content="Cense is a budgeting app that admits some of it was bullshit. Percentage buckets, recurring charges on autopilot, and a spending category for the stuff you'd rather not defend.">
+<!-- crossorigin is required on font preloads even same-origin; without it the
+     browser fetches the file twice and the preload does nothing. -->
+<link rel="preload" as="font" type="font/woff2" href="fonts/archivo-latin.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="fonts/plexmono-600-latin.woff2" crossorigin>
 <link rel="stylesheet" href="styles.css">
 
 <link rel="manifest" href="manifest.webmanifest">

@@ -1297,7 +1297,7 @@
           '<td data-label="Amount" style="width:112px"><input class="inp num" value="' + num(p.amount).toFixed(2) + '" data-id="' + pid + '" data-field="amount" data-kind="plan" inputmode="decimal"></td>' +
           '<td data-label="Day" style="width:86px"><input class="inp num" value="' + (num(p.day) || 1) + '" data-id="' + pid + '" data-field="day" data-kind="plan" inputmode="numeric" title="Day of the month it hits (1–31)"></td>' +
           (toward
-            ? '<td data-label="Toward" style="width:130px"><select class="inp" data-id="' + pid + '" data-field="toward" data-kind="plan" title="Point this payment at a fund or a debt">' +
+            ? '<td data-label="Toward" style="width:154px"><select class="inp" data-id="' + pid + '" data-field="toward" data-kind="plan" title="Point this payment at a fund or a debt">' +
               towardOptions(towardValue(p)) + '</select></td>'
             : '') +
           '<td data-label="Auto" style="width:60px">' +

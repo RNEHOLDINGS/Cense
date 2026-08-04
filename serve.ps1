@@ -24,6 +24,7 @@ $types = @{
   '.ico'         = 'image/x-icon'
   '.svg'         = 'image/svg+xml'
   '.png'         = 'image/png'
+  '.woff2'       = 'font/woff2'
   # Browsers will not offer to install the app if the manifest and icons come
   # back as octet-stream, so these two matter more than they look.
   '.webmanifest' = 'application/manifest+json; charset=utf-8'

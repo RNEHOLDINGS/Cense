@@ -1,4 +1,35 @@
 /* ---------------------------------------------------------------
+   Typefaces. Both SIL OFL 1.1, self-hosted — see fonts/*-OFL.txt.
+   Self-hosted rather than linked because the app is installable and has
+   to render identically with no network at all; a CDN link would also
+   hand every visitor's IP to a third party, which is the one thing this
+   product promises not to do.
+
+   Two faces, deliberately: Archivo carries the words, IBM Plex Mono
+   carries every figure. The split is the point — it says the numbers
+   are the subject before anyone reads one.
+
+   No local() in src: it would happily pick up a stranger's differently
+   versioned copy off the machine and render something else.
+   --------------------------------------------------------------- */
+
+@font-face {
+  font-family: "Archivo";
+  src: url("fonts/archivo-latin.woff2") format("woff2-variations");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Plex Mono";
+  src: url("fonts/plexmono-600-latin.woff2") format("woff2");
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* ---------------------------------------------------------------
    Cense — an RNE Holdings product
    Chart/bucket colors come from the validated categorical palette
    (slots 1-6). Brand chrome deliberately adds no fifth hue, so a
@@ -31,7 +62,8 @@
   --critical: #d03b3b;
 
   --radius: 14px;
-  --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-num: "Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
 
   /* Styles the native checkbox in Settings, which was otherwise the raw OS
      control sitting in the middle of a designed page. */
@@ -39,6 +71,42 @@
 }
 
 ::selection { background: var(--series-1); color: #fff; }
+
+/* ---------- figures ----------
+   Standalone amounts get the mono face; money inside a sentence stays in the
+   text face, because a figure mid-prose should match the prose around it.
+   Weight is pinned to 600 — the only weight of Plex Mono that ships here, and
+   anything else makes the browser synthesise a fake bold. */
+.tile-value,
+.donut-center-1,
+.bucket-nums,
+td.num,
+.legend-item b,
+.scale-legend,
+input[data-field="amount"],
+input[data-field="balance"],
+input[data-field="target"],
+input[data-field="value"],
+input[data-plan-amount],
+#s-income, #s-startbalance, #s-annualadd,
+#f-amount, #d-balance, #fund-target, #a-value {
+  font-family: var(--font-num);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums lining-nums;
+  font-feature-settings: "zero" 1;   /* slashed zero: this is a machine that counts */
+  letter-spacing: -0.01em;
+}
+
+/* Day-of-month and percentage fields are numbers but not money, so they stay
+   in the text face — mixing them in makes the screen read as a terminal. */
+input[data-field="day"],
+input[data-field="pct"],
+input[data-field="apr"],
+input[data-field="every"],
+#b-pct, #s-incomeday, #s-age, #s-return, #fund-every {
+  font-family: var(--font);
+  font-weight: 500;
+}
 
 /* Stops headlines breaking with one orphaned word on the last line. Ignored by
    browsers that do not support it, so there is nothing to fall back to. */
@@ -110,7 +178,7 @@ body {
 
 .brand {
   display: flex; align-items: center; gap: 9px;
-  font-weight: 750; text-decoration: none; color: var(--ink);
+  font-weight: 700; text-decoration: none; color: var(--ink);
   letter-spacing: -0.03em;
 }
 .brand-mark {
@@ -285,7 +353,7 @@ body {
   flex-wrap: wrap;
 }
 h1 { font-size: 25px; margin: 0; letter-spacing: -0.03em; font-weight: 700; }
-h2 { font-size: 15px; margin: 0 0 12px; letter-spacing: -0.015em; font-weight: 650; }
+h2 { font-size: 15px; margin: 0 0 12px; letter-spacing: -0.015em; font-weight: 600; }
 .sub { color: var(--ink-2); font-size: 14px; margin: 0 0 20px; max-width: 62ch; }
 
 .card {
@@ -320,7 +388,7 @@ h2 { font-size: 15px; margin: 0 0 12px; letter-spacing: -0.015em; font-weight: 6
    have always been tabular, hold still. */
 .tile-value {
   font-size: 27px;
-  font-weight: 680;
+  font-weight: 600;   /* the only weight of Plex Mono that ships; 700 fakes it */
   letter-spacing: -0.03em;
   margin-top: 5px;
   font-variant-numeric: tabular-nums lining-nums;
@@ -340,7 +408,7 @@ h2 { font-size: 15px; margin: 0 0 12px; letter-spacing: -0.015em; font-weight: 6
   display: flex; align-items: baseline; gap: 10px;
   justify-content: space-between; flex-wrap: wrap;
 }
-.bucket-name { display: flex; align-items: center; gap: 8px; font-weight: 650; }
+.bucket-name { display: flex; align-items: center; gap: 8px; font-weight: 600; }
 .bucket-nums { font-size: 13.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
 
 .meter {
@@ -372,7 +440,7 @@ th {
 td { padding: 3px 8px; border-bottom: 1px solid var(--grid); vertical-align: middle; }
 tr:last-child td { border-bottom: 0; }
 .num { text-align: right; font-variant-numeric: tabular-nums; }
-tfoot td { font-weight: 680; border-top: 1px solid var(--axis); border-bottom: 0; padding-top: 10px; }
+tfoot td { font-weight: 600; border-top: 1px solid var(--axis); border-bottom: 0; padding-top: 10px; }
 
 /* ---------- form controls ---------- */
 
@@ -400,7 +468,7 @@ select.inp option { background: var(--surface-1); color: var(--ink); }
   display: block;
   font-size: 12px;
   color: var(--ink-2);
-  font-weight: 650;
+  font-weight: 600;
   margin-bottom: 4px;
 }
 .field .inp { border-color: var(--border); background: var(--plane); }
@@ -482,16 +550,16 @@ select.inp option { background: var(--surface-1); color: var(--ink); }
 /* ---------- month stepper ---------- */
 
 .stepper { display: flex; align-items: center; gap: 4px; }
-.stepper .label { min-width: 134px; text-align: center; font-weight: 650; font-size: 14px; }
+.stepper .label { min-width: 134px; text-align: center; font-weight: 600; font-size: 14px; }
 
 /* ---------- donut ---------- */
 
 .donut-wrap { display: flex; gap: 22px; align-items: center; flex-wrap: wrap; }
-.donut-center-1 { font-size: 20px; font-weight: 680; letter-spacing: -0.02em; font-variant-numeric: tabular-nums lining-nums; }
+.donut-center-1 { font-size: 20px; font-weight: 600; letter-spacing: -0.02em; font-variant-numeric: tabular-nums lining-nums; }
 .donut-center-2 { font-size: 11px; fill: var(--ink-muted); }
 .legend { display: grid; gap: 7px; flex: 1; min-width: 180px; }
 .legend-item { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: var(--ink-2); }
-.legend-item b { color: var(--ink); font-weight: 650; font-variant-numeric: tabular-nums; }
+.legend-item b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
 
 /* ---------- notes, banners, misc ---------- */
 
@@ -537,7 +605,7 @@ select.inp option { background: var(--surface-1); color: var(--ink); }
 
 .pill {
   display: inline-flex; align-items: center; gap: 6px;
-  font-size: 12px; font-weight: 650;
+  font-size: 12px; font-weight: 600;
   padding: 3px 10px; border-radius: 20px;
   border: 1px solid var(--border);
   color: var(--ink-2);
@@ -558,7 +626,7 @@ select.inp option { background: var(--surface-1); color: var(--ink); }
   color: var(--ink-muted);
   font-size: 13px;
 }
-.footer b { color: var(--ink-2); font-weight: 650; }
+.footer b { color: var(--ink-2); font-weight: 600; }
 .footer-mark {
   width: 18px; height: 18px; border-radius: 6px;
   background: linear-gradient(140deg, var(--series-1), var(--series-2));
@@ -708,7 +776,7 @@ select.inp option { background: var(--surface-1); color: var(--ink); }
   .stack tr.open .td-act { gap: 4px; }
 
   .stack tfoot tr { background: transparent; border: 0; padding: 0 11px; }
-  .stack tfoot td { font-weight: 680; }
+  .stack tfoot td { font-weight: 700; }
 
   .table-wrap { overflow-x: visible; }
 

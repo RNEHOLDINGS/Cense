@@ -9,7 +9,7 @@
    keeps serving the old version until it happens to revalidate.
    --------------------------------------------------------------- */
 
-var CACHE = 'cense-v6';   /* v6: typographic and control polish */
+var CACHE = 'cense-v7';   /* v7: self-hosted typefaces */
 
 var ASSETS = [
   './',
@@ -18,6 +18,10 @@ var ASSETS = [
   './styles.css',
   './app.js',
   './manifest.webmanifest',
+  /* If these are missing here the installed app renders in system-ui offline
+     forever, and it will look correct on a machine that has them cached. */
+  './fonts/archivo-latin.woff2',
+  './fonts/plexmono-600-latin.woff2',
   './favicon-32.png',
   './icon-180.png',
   './icon-192.png',

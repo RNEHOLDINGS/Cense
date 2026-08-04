@@ -1110,12 +1110,15 @@
 
     var savedPct = income > 0 ? Math.round((split.saved / income) * 100) + '% of your income' : 'this month';
 
+    /* money0, not money: cents at 27px are noise, and the exact figure is one
+       glance away in the table below. Mixed precision is how the hierarchy gets
+       expressed — the bucket rows underneath have always rounded. */
     var tiles =
-      tile('Money in', money(income), 'every month') +
-      tile('Money out', money(split.consumed), monthShort(ym) + ' — spent, not saved') +
-      tile('Saved', money(split.saved), savedPct, split.saved > 0 ? 'pos' : '') +
+      tile('Money in', money0(income), 'every month') +
+      tile('Money out', money0(split.consumed), monthShort(ym) + ' — spent, not saved') +
+      tile('Saved', money0(split.saved), savedPct, split.saved > 0 ? 'pos' : '') +
       tile(left >= 0 ? 'Still yours' : 'In the hole',
-           money(Math.abs(left)),
+           money0(Math.abs(left)),
            left >= 0 ? 'not yet spoken for' : 'past the line',
            left >= 0 ? 'pos' : 'neg');
 
@@ -1183,7 +1186,7 @@
           '<div class="card"><h2>Where it went</h2>' + donut(chartRows, split.consumed, 'spent') + '</div>' +
           (state.debts.length
             ? '<div class="card"><h2>Still owed</h2>' +
-              '<div class="tile-value">' + money(debtTotal) + '</div>' +
+              '<div class="tile-value">' + money0(debtTotal) + '</div>' +
               '<div class="tile-note">across ' + plural(state.debts.length, 'balance', 'balances') + '</div></div>'
             : '') +
         '</div>' +
@@ -1460,9 +1463,9 @@
       '<p class="sub">Everything you own, minus everything you owe. The debts come straight from the <b>Debts</b> screen, so paying one down moves this number on its own.</p>' +
 
       '<div class="grid grid-4" style="margin-bottom:16px">' +
-        tile('Assets', money(assets), plural(state.assets.length, 'thing', 'things')) +
-        tile('Owed', money(owed), plural(state.debts.length, 'debt', 'debts')) +
-        tile(worth >= 0 ? 'Net worth' : 'Underwater', money(Math.abs(worth)),
+        tile('Assets', money0(assets), plural(state.assets.length, 'thing', 'things')) +
+        tile('Owed', money0(owed), plural(state.debts.length, 'debt', 'debts')) +
+        tile(worth >= 0 ? 'Net worth' : 'Underwater', money0(Math.abs(worth)),
              worth >= 0 ? 'what is actually yours' : 'owed beyond what you own',
              worth >= 0 ? 'pos' : 'neg') +
       '</div>' +

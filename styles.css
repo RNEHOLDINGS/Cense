@@ -596,18 +596,32 @@ select.inp option { background: var(--surface-1); color: var(--ink); }
   font-size: var(--t-body);
 }
 
+/* Monochrome, inherits colour from whatever it sits in, never drops a hue on
+   the page that a chart might be using. */
+.icon { flex: none; display: block; }
+
+/* The icon sits on the first line of text, not centred against the block. */
+.note .icon { margin-top: 1px; }
+
 .note {
   display: flex; gap: 9px;
   font-size: var(--t-small);
   padding: 11px 14px;
   border-radius: var(--r-md);
   border: 1px solid var(--border);
+  border-left-width: 2px;
   background: var(--wash);
   margin-bottom: 14px;
   align-items: flex-start;
 }
+/* The left edge carries the meaning that an emoji used to. */
+.note-info { border-left-color: var(--series-1); }
+.note-good { border-left-color: var(--series-4); color: var(--ink-2); }
+.note-good .icon { color: var(--series-4); }
 .note-warn { border-color: var(--warning); }
+.note-warn .icon { color: var(--warning); }
 
+.banner .icon { color: var(--ink-2); }
 .banner {
   display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
   font-size: var(--t-small);

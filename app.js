@@ -113,6 +113,40 @@
 
   var plural = function (n, one, many) { return n + ' ' + (n === 1 ? one : many); };
 
+  /* ---------- icons ----------
+     Emoji were doing this job, which meant six uncontrolled hues rendered by
+     whichever font the operating system felt like — on a page whose one stated
+     rule is that chrome adds no colour a chart might mean. These are stroked in
+     currentColor instead, so they inherit the theme and stay monochrome.
+
+     24-unit grid, drawn at 16px in notes and 17px elsewhere. */
+  var ICONS = {
+    warn:    '<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/>',
+    check:   '<path d="M20 6 9 17l-5-5"/>',
+    trash:   '<path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>',
+    repeat:  '<path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>',
+    target:  '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+    down:    '<path d="M23 18l-9.5-9.5-5 5L1 6"/><path d="M17 18h6v-6"/>',
+    flask:   '<path d="M9 2h6"/><path d="M10 2v6.5L4.8 18a2 2 0 0 0 1.7 3h11a2 2 0 0 0 1.7-3L14 8.5V2"/><path d="M7.5 14h9"/>'
+  };
+
+  function icon(name, size) {
+    if (!ICONS[name]) return '';
+    var s = size || 16;
+    return '<svg class="icon" viewBox="0 0 24 24" width="' + s + '" height="' + s + '" fill="none" ' +
+      'stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" ' +
+      'aria-hidden="true" focusable="false">' + ICONS[name] + '</svg>';
+  }
+
+  /* A note is a coloured left edge and a sentence. Only the warning kind gets a
+     glyph — the rest were carrying an emoji purely because the slot existed. */
+  function note(html, kind) {
+    kind = kind || 'info';
+    return '<div class="note note-' + kind + '">' +
+      (kind === 'warn' ? icon('warn') : kind === 'good' ? icon('check') : '') +
+      '<span>' + html + '</span></div>';
+  }
+
   var Ordinal = function (n) {
     if (n % 100 >= 11 && n % 100 <= 13) return 'th';
     return ['th', 'st', 'nd', 'rd'][n % 10] || 'th';
@@ -968,7 +1002,7 @@
   function demoBanner() {
     if (!inDemo()) return '';
     return '<div class="banner banner-demo">' +
-      '<span>🧪</span>' +
+      icon('flask') +
       '<span><b>This is a made-up household.</b> Poke at anything — your own numbers are safely parked and come straight back.</span>' +
       '<span class="spacer"></span>' +
       '<button class="btn btn-sm" data-act="exit-demo">Clear the demo</button>' +
@@ -995,12 +1029,12 @@
   function alarmBanners() {
     var out = '';
     if (ui.loadFailed) {
-      out += '<div class="note note-warn"><span>⚠</span><span>Cense could not read the budget saved in this browser, so it opened empty. ' +
+      out += '<div class="note note-warn">' + icon('warn') + '<span>Cense could not read the budget saved in this browser, so it opened empty. ' +
         '<b>Your data has not been deleted</b> — the unreadable copy is kept under a recovery key. ' +
         'Restore your last export rather than starting over, and do not clear this browser\'s data.</span></div>';
     }
     if (ui.saveFailed) {
-      out += '<div class="note note-warn"><span>⚠</span><span><b>Nothing is being saved.</b> This browser refused the last write — storage may be full, ' +
+      out += '<div class="note note-warn">' + icon('warn') + '<span><b>Nothing is being saved.</b> This browser refused the last write — storage may be full, ' +
         'or private browsing may be blocking it. Everything on screen will vanish on reload. ' +
         'Use <b>Export backup</b> in Settings now.</span></div>';
     }
@@ -1029,7 +1063,7 @@
     if (!n) return '';
     var top = ui.undos[n - 1];
     return '<div class="banner">' +
-      '<span>🗑</span><span>' + esc(top.label) + '</span>' +
+      icon('trash') + '<span>' + esc(top.label) + '</span>' +
       (n > 1 ? '<span class="hint">' + (n - 1) + ' more can be undone</span>' : '') +
       '<span class="spacer"></span>' +
       '<button class="btn btn-sm" data-act="undo-delete">Undo</button>' +
@@ -1075,7 +1109,7 @@
     var p = ui.lastPost;
     if (!p || p.ym !== ui.month) return '';
     return '<div class="banner">' +
-      '<span>🔁</span>' +
+      icon('repeat') +
       '<span>Posted ' + plural(p.count, 'regular', 'regulars') + ' for ' + esc(monthShort(p.ym)) +
       ' — <b>' + money(p.total) + '</b>.</span>' +
       '<span class="spacer"></span>' +
@@ -1094,10 +1128,10 @@
 
     var notes = '';
     if (income <= 0) {
-      notes += '<div class="note"><span>👋</span><span>Tell Cense what you make in <b>Settings</b> and the buckets come to life.</span></div>';
+      notes += '<div class="note note-info"><span>Tell Cense what you make in <b>Settings</b> and the buckets come to life.</span></div>';
     }
     if (Math.abs(pt - 100) > 0.01) {
-      notes += '<div class="note note-warn"><span>⚠</span><span>Your buckets add up to <b>' + pt + '%</b>, not 100%. ' +
+      notes += '<div class="note note-warn">' + icon('warn') + '<span>Your buckets add up to <b>' + pt + '%</b>, not 100%. ' +
         (pt > 100 ? 'That is more money than you actually make.' : 'Some of your paycheck has nowhere to go.') +
         ' Fix it in <b>Settings</b>.</span></div>';
     }
@@ -1165,12 +1199,12 @@
     var flow = cashFlow(ym);
     var flowNote = '';
     if (flow && flow.firstNeg) {
-      flowNote = '<div class="note note-warn"><span>⚠</span><span>On current timing you go below zero on the ' +
+      flowNote = '<div class="note note-warn">' + icon('warn') + '<span>On current timing you go below zero on the ' +
         '<b>' + flow.firstNeg + Ordinal(flow.firstNeg) + '</b>, bottoming out at <b>' + money(flow.low) + '</b>. ' +
         'The month still ends at ' + money(flow.end) + ' — this is a timing problem, not an overspending one, ' +
         'and it is what overdraft fees are made of.</span></div>';
     } else if (flow && flow.low < 100) {
-      flowNote = '<div class="note"><span>👀</span><span>Tightest point this month is <b>' + money(flow.low) +
+      flowNote = '<div class="note note-info"><span>Tightest point this month is <b>' + money(flow.low) +
         '</b> on the ' + flow.lowDay + Ordinal(flow.lowDay) + '.</span></div>';
     }
 
@@ -1343,9 +1377,9 @@
     var totalPlanned = state.plan.reduce(function (a, p) { return a + num(p.amount); }, 0);
 
     return head('The Regulars',
-        '<span class="pill' + (autoOn ? ' pill-on' : '') + '">🔁 ' + plural(autoOn, 'on autopilot', 'on autopilot') + '</span>') +
+        '<span class="pill' + (autoOn ? ' pill-on' : '') + '">' + icon('repeat', 14) + ' ' + plural(autoOn, 'on autopilot', 'on autopilot') + '</span>') +
       '<p class="sub">Rent, the electric bill, the streaming service you forgot you had. Set them once and Cense posts them for you at the start of every month — flip <b>Auto</b> off for the ones that change too much to predict.</p>' +
-      '<div class="note"><span>💡</span><span>Committing <b>' + money(totalPlanned) + '</b> of your ' +
+      '<div class="note note-info"><span>Committing <b>' + money(totalPlanned) + '</b> of your ' +
         money(income) + ' a month. Anything with Auto on lands in <b>Spending</b> automatically; the rest is just your plan on paper.</span></div>' +
       sections;
   }
@@ -1362,7 +1396,7 @@
     var nothingYet = !state.funds.length && !state.debts.length;
 
     var pills = '<span class="row" style="gap:6px">' +
-      (state.funds.length ? '<span class="pill pill-on">🪺 ' + money0(saved) + ' set aside</span>' : '') +
+      (state.funds.length ? '<span class="pill pill-on">' + icon('target', 14) + ' ' + money0(saved) + ' set aside</span>' : '') +
       (state.debts.length ? '<span class="pill">' + money0(owed) + ' owed</span>' : '') +
       '</span>';
 
@@ -1618,10 +1652,10 @@
     return '<h2 class="section-title">Funds</h2>' +
       '<p class="sub">Christmas, the next set of tyres, the insurance renewal. They are not surprises — they are bills you have not started paying yet. Give each one a target and a cycle and Cense spreads it over the months instead of letting it land on one.</p>' +
       (!saveBucket && state.funds.length
-        ? '<div class="note note-warn"><span>⚠</span><span>No bucket is marked <b>Saving</b>, so there is nowhere for this money to sit. Set one in <b>Settings</b>.</span></div>'
+        ? '<div class="note note-warn">' + icon('warn') + '<span>No bucket is marked <b>Saving</b>, so there is nowhere for this money to sit. Set one in <b>Settings</b>.</span></div>'
         : '') +
       (state.funds.length
-        ? '<div class="note"><span>💡</span><span>Together these need <b>' + money(monthlyTotal) + '</b> a month' +
+        ? '<div class="note note-info"><span>Together these need <b>' + money(monthlyTotal) + '</b> a month' +
           (income > 0 ? ' — ' + Math.round((monthlyTotal / income) * 100) + '% of your income' : '') +
           '. Spend out of a fund by tagging the charge to it in <b>Spending</b>.</span></div>'
         : '') +
@@ -1730,7 +1764,7 @@
     return '<h2 class="section-title">Debts</h2>' +
       '<p class="sub">The number that does not go away on its own — except now it does, when you point money at it. Add the interest rate and Cense will tell you what waiting costs.</p>' +
       (paidAll > 0
-        ? '<div class="note"><span>📉</span><span>You have paid off <b>' + money(paidAll) + '</b> since you started tracking.</span></div>'
+        ? '<div class="note note-info"><span>You have paid off <b>' + money(paidAll) + '</b> since you started tracking.</span></div>'
         : '') +
       (state.debts.length ? cards : '') +
       '<div class="card">' +
@@ -1804,8 +1838,8 @@
       '<div class="card">' +
         '<h2>Buckets</h2>' +
         (Math.abs(pt - 100) > 0.01
-          ? '<div class="note note-warn"><span>⚠</span><span>These come to <b>' + pt + '%</b>. They need to hit 100%.</span></div>'
-          : '<div class="note"><span>✓</span><span>Adds up to 100%. Tidy.</span></div>') +
+          ? '<div class="note note-warn">' + icon('warn') + '<span>These come to <b>' + pt + '%</b>. They need to hit 100%.</span></div>'
+          : '<div class="note note-good">' + icon('check') + '<span>Adds up to 100%. Tidy.</span></div>') +
         '<div class="table-wrap"><table class="stack">' +
           '<thead><tr><th></th><th>Name</th><th class="num">% of income</th><th>Type</th><th>Color</th><th></th></tr></thead>' +
           '<tbody>' + bucketRows + '</tbody>' +

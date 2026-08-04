@@ -99,7 +99,9 @@
     border: 1px solid var(--border); border-radius: var(--r-lg);
     background: var(--surface-1); padding: 22px;
   }
-  .feature .ic { font-size: var(--t-title); line-height: 1; margin-bottom: 12px; }
+  /* Stroked, monochrome, inheriting the muted ink — so the six largest graphics
+     on the page stop introducing colours the charts are using. */
+  .feature .ic { display: block; color: var(--ink-muted); margin-bottom: 12px; }
   .feature h3 { margin: 0 0 7px; font-size: var(--t-body); letter-spacing: -0.015em; }
   .feature p { margin: 0; font-size: var(--t-body); color: var(--ink-2); line-height: 1.5; }
 
@@ -189,38 +191,38 @@
 
     <div class="features">
       <div class="feature">
-        <div class="ic">🪣</div>
+        <svg class="ic" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
         <h3>Percentage buckets</h3>
         <p>Split your paycheck by percentage, not by guesswork. Cense tells you when your
            buckets don't add up to 100% — which, if you've ever built this in a spreadsheet,
            they probably don't.</p>
       </div>
       <div class="feature">
-        <div class="ic">🔁</div>
+        <svg class="ic" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
         <h3>Regulars on autopilot</h3>
         <p>Rent, insurance, the gym you swear you'll use. Set the amount and the day once,
            and every new month starts with them already counted.</p>
       </div>
       <div class="feature">
-        <div class="ic">🧠</div>
+        <svg class="ic" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
         <h3>It learns your habits</h3>
         <p>File a charge once and Cense remembers. It even sees through bank noise —
            categorize “DOMINOS PIZZA 4471 AUSTIN” and the next store number sorts itself.</p>
       </div>
       <div class="feature">
-        <div class="ic">📥</div>
+        <svg class="ic" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
         <h3>Import your statement</h3>
         <p>Drop in a CSV from your bank. Cense figures out the columns, skips your deposits,
            and proposes a bucket for every line.</p>
       </div>
       <div class="feature">
-        <div class="ic">🔒</div>
+        <svg class="ic" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
         <h3>Private by construction</h3>
         <p>There's no account because there's no server. Your spending lives in your browser.
            We couldn't sell your data if we wanted to — we don't have it.</p>
       </div>
       <div class="feature">
-        <div class="ic">🌗</div>
+        <svg class="ic" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
         <h3>Easy on the eyes</h3>
         <p>Light and dark, both designed on purpose. Colorblind-safe charts, because a pie
            chart nobody can read is just a circle.</p>

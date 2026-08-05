@@ -28,111 +28,158 @@
 <meta property="og:image:height" content="630">
 <meta property="og:image:alt" content="Needs. Wants. Savings. Bullshit.">
 <meta name="twitter:card" content="summary_large_image">
+
 <style>
+  /* Layout only. Everything that has a look — cards, tiles, meters, notes,
+     type scale, radii, colour — comes from styles.css, because the product
+     screenshots on this page are built from the app's own classes rather than
+     being images. There used to be a second design system in here; the feature
+     grid it existed for is gone. */
+
   body { display: block; }
 
-  .lp { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
+  .lp { max-width: 1020px; margin: 0 auto; padding: 0 20px; }
 
   .lp-nav {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 18px 0; gap: 16px; flex-wrap: wrap;
+    padding: 20px 0; gap: 16px; flex-wrap: wrap;
   }
 
-  .hero { padding: 60px 0 54px; text-align: center; }
+  /* ---------- hero: asymmetric, not centred ---------- */
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+    gap: 48px;
+    align-items: center;
+    padding: 56px 0 72px;
+  }
   .hero h1 {
-    font-size: clamp(34px, 6vw, 58px);
-    line-height: 1.05;
+    font-size: clamp(34px, 5.4vw, 52px);
+    line-height: 1.04;
     letter-spacing: -0.04em;
-    margin: 0 0 18px;
-    max-width: 16ch;
-    margin-inline: auto;
+    margin: 0 0 20px;
   }
   .hero .lede {
-    font-size: clamp(16px, 2.2vw, 19px);
+    font-size: clamp(16px, 1.6vw, 18px);
     color: var(--ink-2);
-    max-width: 54ch;
-    margin: 0 auto 28px;
+    margin: 0 0 28px;
+    max-width: 42ch;
   }
-  .hero-cta { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
-  .btn-lg { padding: 12px 26px; font-size: var(--t-body); border-radius: var(--r-md); }
-  .hero-fine { font-size: var(--t-small); color: var(--ink-muted); margin-top: 16px; }
+  .hero-fine { font-size: var(--t-small); color: var(--ink-muted); margin: 16px 0 0; }
+  .hero-fine a { color: var(--ink-2); }
 
-  .kicker {
-    display: inline-block;
-    font-size: var(--t-micro); font-weight: 700; letter-spacing: 0.09em;
-    text-transform: uppercase; color: var(--ink-muted);
-    margin-bottom: 12px;
-  }
-
-  /* the star of the show */
-  .bs-band {
+  /* The product shot is real markup, so it needs a frame that reads as
+     "this is a screen" without pretending to be a browser chrome. */
+  .shot {
+    background: var(--plane);
     border: 1px solid var(--border);
     border-radius: var(--r-lg);
-    background: var(--surface-1);
-    padding: 44px 36px;
-    margin: 20px 0 64px;
-    text-align: center;
+    padding: 16px;
+    box-shadow: 0 18px 40px -24px rgba(0, 0, 0, 0.45);
   }
-  .bs-band h2 {
-    font-size: clamp(24px, 3.6vw, 34px);
-    letter-spacing: -0.03em;
-    margin: 0 0 14px;
+  .shot .card, .shot .tile { margin-bottom: 0; }
+  .shot .grid { gap: 10px; }
+  .shot-bar { display: flex; align-items: center; gap: 6px; padding: 2px 4px 12px; }
+  .shot-dot { width: 8px; height: 8px; border-radius: var(--r-pill); background: var(--grid); }
+  .shot-label {
+    margin-left: auto; font-size: var(--t-micro); color: var(--ink-muted);
+    text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700;
   }
-  .bs-band p { color: var(--ink-2); max-width: 58ch; margin: 0 auto; font-size: var(--t-body); }
-  .bs-chips { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; margin-top: 26px; }
-  .chip {
-    border: 1px solid var(--border); border-radius: var(--r-pill);
+
+  /* ---------- the band: full bleed, inverted, one saturated word ---------- */
+  /* Sits outside .lp in the document rather than escaping it with 100vw, which
+     overflows by the width of the scrollbar. */
+  .band {
+    background: var(--ink);
+    color: var(--surface-1);
+    padding: 76px 20px 72px;
+    margin-bottom: 84px;
+  }
+  .band-inner { max-width: 1020px; margin: 0 auto; }
+  .band h2 {
+    font-size: clamp(32px, 6.4vw, 56px);
+    line-height: 1.02;
+    letter-spacing: -0.045em;
+    margin: 0 0 20px;
+    max-width: 18ch;
+  }
+  .band .bs { color: var(--series-3); }
+  .band p {
+    color: var(--surface-1);
+    opacity: 0.72;
+    max-width: 56ch;
+    margin: 0;
+    font-size: clamp(15px, 1.5vw, 17px);
+  }
+  .band .bs-chips { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 32px; }
+  .band .chip {
+    border: 1px solid rgba(128, 128, 128, 0.4);
+    border-radius: var(--r-pill);
     padding: 6px 15px; font-size: var(--t-small); font-weight: 600;
     display: inline-flex; align-items: center; gap: 8px;
-    background: var(--plane);
+    color: var(--surface-1);
   }
 
-  .section { margin-bottom: 64px; }
-  .section > h2 {
-    font-size: clamp(22px, 3vw, 29px);
-    letter-spacing: -0.03em; margin: 0 0 10px;
+  /* ---------- proof rows: what it does, shown doing it ---------- */
+  .proof-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 44px;
+    align-items: center;
+    margin-bottom: 64px;
   }
-  .section > .blurb { color: var(--ink-2); max-width: 56ch; margin: 0 0 26px; font-size: var(--t-body); }
-
-  .features { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(238px, 1fr)); }
-  .feature {
-    border: 1px solid var(--border); border-radius: var(--r-lg);
-    background: var(--surface-1); padding: 22px;
+  .proof-row h3 {
+    font-size: clamp(22px, 2.6vw, 29px);
+    letter-spacing: -0.03em;
+    margin: 0 0 12px;
+    line-height: 1.12;
   }
-  /* Stroked, monochrome, inheriting the muted ink — so the six largest graphics
-     on the page stop introducing colours the charts are using. */
-  .feature .ic { display: block; color: var(--ink-muted); margin-bottom: 12px; }
-  .feature h3 { margin: 0 0 7px; font-size: var(--t-body); letter-spacing: -0.015em; }
-  .feature p { margin: 0; font-size: var(--t-body); color: var(--ink-2); line-height: 1.5; }
+  .proof-row p { color: var(--ink-2); margin: 0; max-width: 44ch; }
+  .proof-art .card { margin-bottom: 0; }
+  /* Alternate the side the picture sits on, so three rows read as a rhythm
+     rather than as a list of three identical rows. */
+  .proof-row.flip .proof-art { order: -1; }
 
-  .steps { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(238px, 1fr)); counter-reset: s; }
-  .step { border-left: 2px solid var(--grid); padding: 4px 0 4px 18px; counter-increment: s; }
-  .step::before {
-    content: counter(s);
-    display: grid; place-items: center;
-    width: 25px; height: 25px; border-radius: var(--r-sm);
-    background: var(--ink); color: var(--surface-1);
-    font-size: var(--t-small); font-weight: 700; margin-bottom: 10px;
-  }
-  .step h3 { margin: 0 0 6px; font-size: var(--t-body); }
-  .step p { margin: 0; font-size: var(--t-body); color: var(--ink-2); }
-
-  .closer {
-    text-align: center;
-    border: 1px solid var(--border); border-radius: var(--r-lg);
-    background: var(--surface-1);
-    padding: 52px 30px; margin-bottom: 56px;
-  }
-  .closer h2 { font-size: clamp(24px, 3.6vw, 34px); letter-spacing: -0.03em; margin: 0 0 12px; }
-  .closer p { color: var(--ink-2); max-width: 48ch; margin: 0 auto 24px; }
-
-  .honest {
+  .spec-strip {
+    display: flex; flex-wrap: wrap; gap: 8px 18px;
     font-size: var(--t-small); color: var(--ink-muted);
     border-top: 1px solid var(--border);
-    padding-top: 22px; margin-bottom: 50px;
-    max-width: 62ch;
+    padding-top: 20px; margin: 0 0 84px;
   }
-  .honest b { color: var(--ink-2); }
+
+  /* ---------- close ---------- */
+  .closer {
+    border-top: 1px solid var(--border);
+    padding-top: 48px;
+    margin-bottom: 56px;
+  }
+  .closer h2 {
+    font-size: clamp(26px, 4vw, 40px);
+    letter-spacing: -0.035em;
+    margin: 0 0 14px;
+    max-width: 20ch;
+  }
+  .closer p { color: var(--ink-2); max-width: 52ch; margin: 0 0 26px; }
+
+  /* Promoted out of muted grey. An app that states its limits in normal-sized
+     type is more credible than one that whispers them. */
+  .honest {
+    color: var(--ink-2);
+    max-width: 62ch;
+    margin: 0 0 64px;
+  }
+  .honest b { color: var(--ink); }
+
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; gap: 36px; padding: 40px 0 56px; }
+    .proof-row { grid-template-columns: 1fr; gap: 22px; margin-bottom: 52px; }
+    /* On one column the picture always follows its sentence, so the
+       alternating order does not shuffle the reading. Matches the .flip
+       specificity and comes later, so it wins for both. */
+    .proof-row .proof-art,
+    .proof-row.flip .proof-art { order: 2; }
+    .band { padding: 56px 20px; margin-bottom: 64px; }
+  }
 </style>
 </head>
 <body>
@@ -144,28 +191,78 @@
       <span class="brand-name">Cense</span>
     </a>
     <div class="row">
-      <button class="theme-toggle" id="themeToggle" title="Switch light / dark" aria-label="Switch light / dark">◐</button>
+      <button class="icon-toggle" id="themeToggle" title="Switch light / dark" aria-label="Switch light / dark">◐</button>
       <a class="btn btn-primary" href="index.html">Open the app</a>
     </div>
   </nav>
 
   <section class="hero">
-    <span class="kicker">Personal budgeting</span>
-    <h1>Budgeting that admits some of it was bullshit.</h1>
-    <p class="lede">
-      Every other budgeting app makes you file a $40 late-night food delivery under
-      “Dining.” Cense gives it the category it deserves — and then shows you the total.
-    </p>
-    <div class="hero-cta">
+    <div class="hero-copy">
+      <h1>Budgeting that admits some of it was bullshit.</h1>
+      <p class="lede">
+        Every other budgeting app makes you file a $40 late-night food delivery under
+        “Dining.” Cense gives it the category it deserves — and then shows you the total.
+      </p>
       <a class="btn btn-primary btn-lg" href="index.html">Start budgeting — it's free</a>
-      <a class="btn btn-lg" href="index.html?demo=1">See it with sample numbers</a>
+      <p class="hero-fine">
+        No signup. No bank login. Nothing leaves your browser.<br>
+        <a href="index.html?demo=1">Or look around with sample numbers first →</a>
+      </p>
     </div>
-    <p class="hero-fine">No signup. No bank login. Nothing leaves your browser.</p>
-  </section>
 
-  <section class="bs-band">
-    <span class="kicker">The fourth bucket</span>
-    <h2>Needs. Wants. Savings. <em>Bullshit.</em></h2>
+    <!-- Not a screenshot. Real markup using the app's own classes, so it is
+         crisp at any resolution, correct in both themes, and cannot drift out
+         of date the way an exported PNG does. Figures are invented. -->
+    <div class="shot" aria-label="The Cense dashboard" role="img">
+      <div class="shot-bar" aria-hidden="true">
+        <span class="shot-dot"></span><span class="shot-dot"></span><span class="shot-dot"></span>
+        <span class="shot-label">Dashboard · August</span>
+      </div>
+
+      <div class="grid grid-4" style="margin-bottom:10px">
+        <div class="tile">
+          <div class="tile-label">Money in</div>
+          <div class="tile-value">$4,200</div>
+          <div class="tile-note">every month</div>
+        </div>
+        <div class="tile tile-lead">
+          <div class="tile-label">Still yours</div>
+          <div class="tile-value pos">$1,844</div>
+          <div class="tile-note">not yet spoken for</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Your buckets</h2>
+        <div class="bucket">
+          <div class="bucket-top">
+            <span class="bucket-name"><span class="swatch" style="background:var(--series-1)"></span>Needs<span class="hint">55%</span></span>
+            <span class="bucket-nums">$1,957 of $2,156 · <span class="neg">$199 left</span></span>
+          </div>
+          <div class="meter"><div class="meter-fill" style="width:91%;background:var(--series-1)"></div></div>
+        </div>
+        <div class="bucket">
+          <div class="bucket-top">
+            <span class="bucket-name"><span class="swatch" style="background:var(--series-2)"></span>Wants<span class="hint">20%</span></span>
+            <span class="bucket-nums">$166 of $1,032 · <span class="pos">$865 left</span></span>
+          </div>
+          <div class="meter"><div class="meter-fill" style="width:16%;background:var(--series-2)"></div></div>
+        </div>
+        <div class="bucket">
+          <div class="bucket-top">
+            <span class="bucket-name"><span class="swatch" style="background:var(--series-3)"></span>Bullshit<span class="hint">5%</span></span>
+            <span class="bucket-nums">$88 of $159 · <span class="pos">$71 left</span></span>
+          </div>
+          <div class="meter"><div class="meter-fill" style="width:55%;background:var(--series-3)"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<section class="band">
+  <div class="band-inner">
+    <h2>Needs. Wants. Savings. <span class="bs">Bullshit.</span></h2>
     <p>
       The first three you already know. The fourth is the one that actually changes
       behaviour — because “Wants” is a category you can rationalize, and this one isn't.
@@ -177,93 +274,108 @@
       <span class="chip"><span class="swatch" style="background:var(--series-3)"></span>Bullshit</span>
       <span class="chip"><span class="swatch" style="background:var(--series-4)"></span>Savings</span>
     </div>
-    <p style="margin-top:24px;font-size:var(--t-small);color:var(--ink-muted)">
-      Not your language? Rename any bucket in Settings. We won't be offended.
-    </p>
-  </section>
+  </div>
+</section>
 
-  <section class="section">
-    <span class="kicker">What you get</span>
-    <h2>Small app. Strong opinions.</h2>
-    <p class="blurb">
-      Cense does six things properly instead of thirty things badly.
-    </p>
+<div class="lp">
 
-    <div class="features">
-      <div class="feature">
-        <svg class="ic" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
-        <h3>Percentage buckets</h3>
-        <p>Split your paycheck by percentage, not by guesswork. Cense tells you when your
-           buckets don't add up to 100% — which, if you've ever built this in a spreadsheet,
-           they probably don't.</p>
-      </div>
-      <div class="feature">
-        <svg class="ic" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 1l4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-        <h3>Regulars on autopilot</h3>
-        <p>Rent, insurance, the gym you swear you'll use. Set the amount and the day once,
-           and every new month starts with them already counted.</p>
-      </div>
-      <div class="feature">
-        <svg class="ic" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-        <h3>It learns your habits</h3>
-        <p>File a charge once and Cense remembers. It even sees through bank noise —
-           categorize “DOMINOS PIZZA 4471 AUSTIN” and the next store number sorts itself.</p>
-      </div>
-      <div class="feature">
-        <svg class="ic" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/></svg>
-        <h3>Import your statement</h3>
-        <p>Drop in a CSV from your bank. Cense figures out the columns, skips your deposits,
-           and proposes a bucket for every line.</p>
-      </div>
-      <div class="feature">
-        <svg class="ic" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-        <h3>Private by construction</h3>
-        <p>There's no account because there's no server. Your spending lives in your browser.
-           We couldn't sell your data if we wanted to — we don't have it.</p>
-      </div>
-      <div class="feature">
-        <svg class="ic" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        <h3>Easy on the eyes</h3>
-        <p>Light and dark, both designed on purpose. Colorblind-safe charts, because a pie
-           chart nobody can read is just a circle.</p>
+  <div class="proof-row">
+    <div>
+      <h3>It knows the difference between overspending and running out.</h3>
+      <p>
+        A month can close in the black and still bounce twice, because the rent landed
+        before the paycheck did. Cense walks the month day by day — using the days your
+        regulars are due — and tells you where the floor is.
+      </p>
+    </div>
+    <div class="proof-art">
+      <div class="note note-warn">
+        <svg class="icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+        <span>On current timing you go below zero on the <b>11th</b>, bottoming out at
+        <b>−$273.24</b>. The month still ends at $3,743.76 — this is a timing problem,
+        not an overspending one, and it is what overdraft fees are made of.</span>
       </div>
     </div>
-  </section>
+  </div>
 
-  <section class="section" id="how">
-    <span class="kicker">How it works</span>
-    <h2>Three minutes to set up.</h2>
-    <p class="blurb">Then about thirty seconds a day, which is the only budgeting habit anyone actually keeps.</p>
-
-    <div class="steps">
-      <div class="step">
-        <h3>Tell it what you make</h3>
-        <p>One number. Cense slices it into your buckets and shows you what each one is worth.</p>
-      </div>
-      <div class="step">
-        <h3>Add your regulars</h3>
-        <p>The charges you already know are coming. Flip Auto on and stop re-typing them every month.</p>
-      </div>
-      <div class="step">
-        <h3>Log what you spend</h3>
-        <p>Type it in as you go, or import a statement at the end of the week. Watch the buckets fill.</p>
+  <div class="proof-row flip">
+    <div>
+      <h3>It says what the debt costs you if you don't outrun it.</h3>
+      <p>
+        Add the interest rate and Cense tells you how long it takes at your current
+        payment, what the interest costs on the way, and what another $50 a month would
+        save. When the payment is smaller than the monthly interest, it says so outright.
+      </p>
+    </div>
+    <div class="proof-art">
+      <div class="card">
+        <div class="bucket-top">
+          <span class="bucket-name">Payday loan</span>
+          <span class="bucket-nums">$2,000.00</span>
+        </div>
+        <div class="hint" style="margin-top:10px">
+          <span class="neg">At <b>$250.00</b> a month this never gets paid off</span> — the
+          interest at 180% is $300.00 a month, more than the payment. It grows from here.
+        </div>
       </div>
     </div>
-  </section>
+  </div>
+
+  <div class="proof-row">
+    <div>
+      <h3>Point it at a bank statement and it does the filing.</h3>
+      <p>
+        Cense works out which columns hold what, skips your deposits, proposes a bucket
+        for every line, and skips charges you already have — so re-importing the same
+        statement doesn't double your month. The file is read inside the page.
+      </p>
+    </div>
+    <div class="proof-art">
+      <div class="card">
+        <div class="hint" style="margin-bottom:8px">3 expenses to bring in, deposits skipped · $55.10 total · <b>2</b> already look like charges you have, skipped</div>
+        <div class="table-wrap"><table>
+          <thead><tr><th>Date</th><th>Charge</th><th class="num">Amount</th><th>Bucket</th></tr></thead>
+          <tbody>
+            <tr><td>2026-08-12</td><td>STARBUCKS #4471</td><td class="num">$6.50</td><td>Bullshit</td></tr>
+            <tr><td>2026-08-13</td><td>SHELL OIL 88</td><td class="num">$42.10</td><td>Needs</td></tr>
+            <tr><td>2026-08-14</td><td>KROGER 0412</td><td class="num">$6.50</td><td>Needs</td></tr>
+          </tbody>
+        </table></div>
+      </div>
+    </div>
+  </div>
+
+  <p class="spec-strip">
+    <span>No account, because there is no server</span>
+    <span>·</span>
+    <span>Learns a payee once and files it after that</span>
+    <span>·</span>
+    <span>Sinking funds for the bills that aren't monthly</span>
+    <span>·</span>
+    <span>Light and dark</span>
+    <span>·</span>
+    <span>Colourblind-safe charts</span>
+    <span>·</span>
+    <span>Installs on a phone</span>
+    <span>·</span>
+    <span>Works with no network at all</span>
+  </p>
 
   <section class="closer">
     <h2>Find out where it actually went.</h2>
-    <p>Free, private, and about as fast as opening a spreadsheet — except this one adds up correctly.</p>
-    <div class="hero-cta">
-      <a class="btn btn-primary btn-lg" href="index.html">Open Cense</a>
-      <a class="btn btn-lg" href="index.html?demo=1">Have a look around first</a>
-    </div>
+    <p>
+      Three minutes to set up: tell it what you make, add the charges you already know
+      are coming, then log what you spend. About thirty seconds a day after that, which
+      is the only budgeting habit anyone actually keeps.
+    </p>
+    <a class="btn btn-primary btn-lg" href="index.html">Open Cense</a>
   </section>
 
   <p class="honest">
-    <b>The honest part:</b> Cense keeps your data in your own browser, which is what makes it
-    private — and also means it doesn't sync between your laptop and your phone, and clearing
-    your browser data will erase it. There's an Export button in Settings. Use it now and then.
+    <b>The honest part:</b> Cense keeps your data in your own browser, which is what makes
+    it private — and also means it doesn't sync between your laptop and your phone, and
+    clearing your browser data will erase it. There's an Export button in Settings. Use it
+    now and then.
   </p>
 </div>
 

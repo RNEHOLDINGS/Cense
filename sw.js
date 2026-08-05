@@ -9,7 +9,7 @@
    keeps serving the old version until it happens to revalidate.
    --------------------------------------------------------------- */
 
-var CACHE = 'cense-v9';   /* v9: SVG icons replace emoji */
+var CACHE = 'cense-v10';  /* v10: landing page rebuild */
 
 var ASSETS = [
   './',

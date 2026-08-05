@@ -8,13 +8,53 @@ Percentage buckets, recurring charges on autopilot, and the four spending types
 from the original sheet — including **Bullshit**, which was the best idea in it
 and is now the product's whole personality.
 
-## Running it
+## Using it
 
-Double-click **`landing.html`** for the marketing page, or **`index.html`** to
-go straight into the app. Both work offline with no install, no account and no
-server.
+**<https://rneholdings.github.io/Cense/>**
 
-If a browser refuses to run it from a file, start the bundled server instead:
+That is the whole thing. Open the link and it works — no install, no account,
+no sign-up, nothing to download.
+
+### Sharing it with someone
+
+Send them that link. There is nothing else to explain: it opens in any browser
+on anything.
+
+Each person who opens it gets their own budget. There are no accounts, so
+nothing is shared and nobody can see anyone else's numbers.
+
+### Putting it on a phone
+
+Once it is open in the browser, it can be added to the home screen and from
+then on it opens like a normal app, with no address bar and no signal needed.
+
+**iPhone and iPad** — open it in **Safari**, tap the **Share** button (the
+square with the arrow), scroll down, tap **Add to Home Screen**.
+
+**Android** — open it in **Chrome**, tap the **⋮** menu at the top right, tap
+**Install app**.
+
+**Laptop** — open it in **Chrome** or **Edge** and click the install icon at the
+right-hand end of the address bar. You get a Start Menu entry and its own
+window.
+
+The landing page has these same three sets of steps on it, so it is usually
+easier to send someone the link and let them read it there.
+
+### The one thing worth telling people
+
+The budget lives on the device it was entered on. That is what makes it
+private, and it also means it does not follow you from laptop to phone, and
+clearing browser data will erase it. **Settings → Export backup**, now and
+then.
+
+## Working on it
+
+Double-click `landing.html` or `index.html` to run the files straight off the
+disk. That works for everything except installing — service workers need
+`http://localhost` or HTTPS, so from `file://` it stays an ordinary browser tab.
+
+To get the installable version locally:
 
 ```
 powershell -ExecutionPolicy Bypass -File serve.ps1
@@ -22,31 +62,14 @@ powershell -ExecutionPolicy Bypass -File serve.ps1
 
 then open <http://localhost:8123>.
 
-## Installing it as an app
+**Storage is per origin.** The copy installed from `localhost:8123`, the same
+files opened from disk, and the live site are three separate budgets that
+cannot see each other. Pick one as the real one.
 
-Cense is a PWA, so it installs on Windows, Android and iOS without a store, a
-build step or a toolchain. It needs to be served over `http://localhost` or
-HTTPS — service workers do not run from `file://`, so the plain double-click
-route stays a normal browser tab.
-
-- **Windows** — run `serve.ps1`, open <http://localhost:8123> in Edge or Chrome,
-  then use the install icon in the address bar (or ⋯ → Apps → Install). You get
-  a Start Menu entry, its own window with no address bar, and the `¢` icon.
-- **Phone** — the folder has to be reachable from the phone, so host it (GitHub
-  Pages is free and fits: push the folder, enable Pages). Then **Add to Home
-  Screen** in Safari or Chrome.
-
-Once installed it runs with no network at all — the service worker keeps a copy
-of the app itself. It caches Cense's own files only; it never touches a budget,
-which still lives in that device's own storage.
-
-**Your budget does not follow the install.** Storage is per-origin, so the app
-installed from `localhost:8123` and the same files double-clicked from disk are
-two separate budgets, and your phone is a third. Pick one as the real one and
-move backups between them by hand.
-
-If you change `index.html`, `styles.css` or `app.js`, **bump `CACHE` in
-`sw.js`** — otherwise an installed copy keeps serving the version it cached.
+**If you change any file, bump `CACHE` in `sw.js`.** Otherwise every installed
+copy keeps serving the version it cached — and it will look correct on your own
+machine, which is what makes it easy to miss. New files also have to be added to
+`ASSETS` in the same file or they will not exist offline.
 
 ## Trying it before you type anything in
 

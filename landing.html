@@ -147,6 +147,59 @@
     padding-top: 20px; margin: 0 0 84px;
   }
 
+  /* ---------- install ---------- */
+  .install { border-top: 1px solid var(--border); padding-top: 48px; margin-bottom: 72px; }
+  .install h2 {
+    font-size: clamp(26px, 4vw, 40px);
+    letter-spacing: -0.035em; margin: 0 0 14px; max-width: 20ch;
+  }
+  .install-lede { color: var(--ink-2); max-width: 54ch; margin: 0 0 36px; }
+  .install-grid {
+    display: grid; gap: 32px;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+  .install-step h3 {
+    font-size: var(--t-body); margin: 0 0 12px;
+    letter-spacing: 0.02em; text-transform: uppercase; font-weight: 700;
+    color: var(--ink-muted);
+  }
+  /* Numbered from a counter rather than a list marker, so the digit can be
+     given the mono face and sit in the margin like a step, not a bullet. */
+  .install-step ol { list-style: none; margin: 0; padding: 0; counter-reset: i; }
+  .install-step li {
+    counter-increment: i;
+    position: relative;
+    padding-left: 30px;
+    margin-bottom: 12px;
+    color: var(--ink-2);
+    font-size: var(--t-small);
+    line-height: 1.5;
+  }
+  .install-step li::before {
+    content: counter(i);
+    position: absolute; left: 0; top: 0;
+    font-family: var(--font-num); font-weight: 600;
+    font-size: var(--t-micro); color: var(--ink);
+    width: 20px; height: 20px; border-radius: var(--r-pill);
+    border: 1px solid var(--border);
+    display: grid; place-items: center;
+  }
+  .share-row {
+    display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+    margin-top: 32px;
+  }
+  .share-link {
+    font-family: var(--font-num); font-weight: 600;
+    font-size: var(--t-small);
+    padding: 9px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    background: var(--surface-1);
+    user-select: all;              /* one click selects the whole address */
+    overflow-wrap: anywhere;
+  }
+  .install-fine { color: var(--ink-muted); font-size: var(--t-small); max-width: 62ch; margin: 28px 0 0; }
+
   /* ---------- close ---------- */
   .closer {
     border-top: 1px solid var(--border);
@@ -361,6 +414,58 @@
     <span>Works with no network at all</span>
   </p>
 
+  <section class="install" id="install">
+    <h2>Put it on your phone</h2>
+    <p class="install-lede">
+      There is no app store and no account. It takes about ten seconds, and once it is
+      on there it opens like any other app and works with no signal at all.
+    </p>
+
+    <div class="install-grid">
+      <div class="install-step">
+        <h3>iPhone &amp; iPad</h3>
+        <ol>
+          <li>Open this page in <b>Safari</b></li>
+          <li>Tap the <b>Share</b> button — the square with the arrow</li>
+          <li>Scroll down and tap <b>Add to Home Screen</b></li>
+        </ol>
+      </div>
+      <div class="install-step">
+        <h3>Android</h3>
+        <ol>
+          <li>Open this page in <b>Chrome</b></li>
+          <li>Tap the <b>⋮</b> menu, top right</li>
+          <li>Tap <b>Install app</b> or <b>Add to Home screen</b></li>
+        </ol>
+      </div>
+      <div class="install-step">
+        <h3>Laptop</h3>
+        <ol>
+          <li>Open this page in <b>Chrome</b> or <b>Edge</b></li>
+          <li>Click the install icon at the right of the address bar</li>
+          <li>Or use the menu and choose <b>Install</b></li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- The link is on the page in plain sight, not hidden behind the button.
+         Clipboard access needs a focused window and a real gesture and quietly
+         does nothing when it doesn't get them, so it can never be the only way
+         to get the address. -->
+    <div class="share-row">
+      <span class="share-link" id="shareLink">https://rneholdings.github.io/Cense/</span>
+      <button class="btn btn-primary" id="shareBtn" data-url="https://rneholdings.github.io/Cense/">Send it to someone</button>
+    </div>
+    <p class="hint" id="shareMsg" role="status" aria-live="polite" style="margin:10px 0 0;min-height:1.2em"></p>
+
+    <p class="install-fine">
+      Everyone who opens it gets their own budget. There are no accounts, so nothing is
+      shared and nobody can see anyone else's numbers — including you, and including us.
+      The flip side is that it lives on their device, so tell them to use
+      <b>Export backup</b> in Settings now and then.
+    </p>
+  </section>
+
   <section class="closer">
     <h2>Find out where it actually went.</h2>
     <p>
@@ -398,6 +503,57 @@
       document.documentElement.setAttribute('data-theme', next);
       localStorage.setItem(KEY, next);
     });
+  })();
+
+  /* Share: the native sheet on a phone, the clipboard on a laptop, and the
+     bare link on anything that has neither — so the button always does
+     something rather than failing silently. */
+  (function () {
+    var btn = document.getElementById('shareBtn');
+    var msg = document.getElementById('shareMsg');
+    if (!btn) return;
+
+    function say(text) {
+      msg.textContent = text;
+      setTimeout(function () { msg.textContent = ''; }, 4000);
+    }
+
+    btn.addEventListener('click', function () {
+      var url = btn.getAttribute('data-url');
+      var payload = {
+        title: 'Cense',
+        text: 'A budgeting app that admits some of it was bullshit. No signup, nothing leaves your browser.',
+        url: url
+      };
+
+      if (navigator.share) {
+        navigator.share(payload).catch(function () { /* dismissed — say nothing */ });
+        return;
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(function () {
+          say('Link copied — paste it to whoever needs it.');
+        }).catch(selectInstead);
+        return;
+      }
+      selectInstead();
+    });
+
+    /* If the clipboard refuses, highlight the address so one Ctrl+C finishes
+       the job — better than telling someone a copy happened when it did not. */
+    function selectInstead() {
+      var el = document.getElementById('shareLink');
+      try {
+        var r = document.createRange();
+        r.selectNodeContents(el);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(r);
+        say('Selected the link — copy it with Ctrl+C.');
+      } catch (e) {
+        say('Copy the link above.');
+      }
+    }
   })();
 </script>
 
